@@ -41,10 +41,7 @@ command(sql: string, params?: [Value]) -> affected_rows: u64
 
 ## 错误
 
-- `SyntaxError`：SQL 语句无效。
-- `ConstraintViolation`：模式或唯一性冲突。
-- `NotFound`：更新/删除不存在的键，取决于操作模式。
-- `SerializationError` / `Conflict`：事务冲突，需要重试。
+无效 SQL 可返回 `Parse`；无效会话、schema、类型与事务冲突通过宿主错误返回。请检查实际 `MuduError` 的 code 和 message；该 API 没有单独的 `SyntaxError` 或 `PartialFailure` 结果类型。
 
 ## 事务语义
 
@@ -66,4 +63,4 @@ assert_eq!(affected, 1);
 
 - `command` 用于 DML 语句；`SELECT` 请使用 `query`。
 - 如需一次调用执行多条语句，可考虑 `batch`。
-- 有结构化访问需求时，优先使用类型化系统调用原语（`read`、`write`）。
+- `get`、`put`、`range` 访问原始字节键 KV 数据。类型化关系结果使用 `query`，直接行访问见 [Relation 系统调用](relation.md)。

@@ -31,3 +31,11 @@ See [Per-core worker model](per_core_worker.md) and [Partitioning](partitioning.
 ## Boundaries and compatibility
 
 The kernel's on-disk and wire formats are governed by versioned contracts in the [Reference](../reference/contracts/index.md) section. User-facing documentation should describe subsystem boundaries without turning implementation details into compatibility promises.
+
+## Source layout
+
+The repository root has no `Cargo.toml`. `crates/common`, `crates/db-kernel`, `crates/sdk`, and `crates/tools` are independent workspaces; `example/mpk`, `crates/sdk/mudu_api/rust`, and `crates/bindings` have separate build contexts. The native adapter ABI workspace uses an isolated target directory.
+
+`mudu_kernel` is a facade over fourteen crates: `catalog`, `index`, `wal`, `xengine`, `storage`, `meta`, `command`, `sql`, `conn`, `xcontract`, `worker`, `repl`, `backup`, and `server`. `runtime_wasm` hosts components, while `mudu_runtime` integrates serving and management. `mudu_raft` implements consensus. See `ARCHITECTURE.md` in the source repository for dependency rules.
+
+Run a focused check from the relevant workspace, for example `cargo test --manifest-path crates/db-kernel/Cargo.toml --workspace`. Root-level orchestration uses `cargo make`, `cargo make check`, and `cargo make test`.

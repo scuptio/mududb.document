@@ -73,28 +73,30 @@ mcli --http-addr 127.0.0.1:8300 partition-route --rule-name order_rule --key ten
 
 These commands connect to the TCP protocol endpoint (`--addr`, default `127.0.0.1:9527`). Each takes the request body as inline JSON (`--json`) or from a JSON file (`--json-file`; use `-` to read from stdin).
 
+The SQL example assumes an installed `demo` application with a `users(id)` table. Raw KV requests require an existing session OID as `{ "h": high_u64, "l": low_u64 }`; raw `invoke` requires `session_id` (u64 number or decimal u128 string) and encoded procedure parameters. The IDs and payloads below are placeholders, not session-creation commands. Prefer `app-invoke` for descriptor-based argument conversion and automatic session setup.
+
 ### Run a SQL query or command
 
 ```bash
-mcli --addr 127.0.0.1:9527 command --json '{"app_name":"demo","sql":"select 1"}'
+mcli --addr 127.0.0.1:9527 command --json '{"app_name":"demo","sql":"SELECT id FROM users"}'
 ```
 
 ### Put a key-value item
 
 ```bash
-mcli --addr 127.0.0.1:9527 put --json '{"key":"k","value":"v"}'
+mcli --addr 127.0.0.1:9527 put --json '{"oid":{"h":0,"l":1},"key":"k","value":"v"}'
 ```
 
 ### Get a key
 
 ```bash
-mcli --addr 127.0.0.1:9527 get --json '{"key":"k"}'
+mcli --addr 127.0.0.1:9527 get --json '{"oid":{"h":0,"l":1},"key":"k"}'
 ```
 
 ### Scan a key range
 
 ```bash
-mcli --addr 127.0.0.1:9527 range --json '{"start_key":"a","end_key":"z"}'
+mcli --addr 127.0.0.1:9527 range --json '{"oid":{"h":0,"l":1},"start_key":"a","end_key":"z"}'
 ```
 
 ### Invoke a procedure with a raw request
@@ -102,7 +104,7 @@ mcli --addr 127.0.0.1:9527 range --json '{"start_key":"a","end_key":"z"}'
 `invoke` sends a raw procedure request over TCP. The typed variant is `app-invoke` (see [Client](../administration/client.md)), which fetches the procedure descriptor over HTTP before invoking over TCP.
 
 ```bash
-mcli --addr 127.0.0.1:9527 invoke --json '{"procedure_name":"app/mod/proc","procedure_parameters":{}}'
+mcli --addr 127.0.0.1:9527 invoke --json '{"session_id":"1","procedure_name":"app/mod/proc","procedure_parameters":{}}'
 ```
 
 ## Replication administration

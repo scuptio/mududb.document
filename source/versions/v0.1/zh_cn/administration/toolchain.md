@@ -28,3 +28,7 @@ MuduDB 工具链围绕过程应用的构建、打包、部署与调用组织。
 8. **调用**：运行 `mcli app-invoke --app <应用> --module <模块> --proc <过程> --json '{...}'`。
 
 包格式详见[应用包](packages.md)，完整 walkthrough 参见[你的第一个 MPK 包](../tutorial/tutorials/wallet.md)。
+
+## SQL 检查
+
+`mgen check-sql --lang rust --ddl sql/ddl.sql --input src/rust` 根据 DDL 检查 SQL 字面量，Rust Wallet 的打包流程包含该步骤。语言编译器检查 Rust 类型；两者都不能替代运行时验证。可移植的 `mpm build` 流程与各语言要求见 [SDK 与执行模式](../programming/sdk.md)。

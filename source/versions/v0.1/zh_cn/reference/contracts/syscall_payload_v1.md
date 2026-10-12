@@ -89,6 +89,34 @@ v1 恒等迁移处理器位于
 运行时把每个 WIT 函数映射到同一条内部 16 字节头部 + MessagePack 路径；因此 `message_kind`
 判别值作为实现细节保留，用于运行时路由。
 
+### 当前 syscall 消息类型
+
+| Kind | WIT function |
+|------|--------------|
+| 1 | `query` |
+| 2 | `command` |
+| 3 | `batch` |
+| 4 | `open-session` |
+| 5 | `close-session` |
+| 6 | `get` |
+| 7 | `put` |
+| 8 | `delete` |
+| 9 | `range` |
+| 10 | `fs-open` |
+| 11 | `fs-close` |
+| 12 | `fs-read` |
+| 13 | `fs-write` |
+| 14 | `fs-pread` |
+| 15 | `fs-pwrite` |
+| 16 | `fs-lseek` |
+| 17 | `fs-fstat` |
+| 18 | `fs-stat` |
+| 19 | `fs-fsync` |
+| 20 | `fs-readdir` |
+| 21 | `relation-get` |
+| 22 | `relation-update` |
+| 23 | `relation-insert` |
+
 ## 消息体编码
 
 消息体是单个 MessagePack 值。具体字节序列由 `mgen` 模板控制，不得从通用的
@@ -243,7 +271,7 @@ MessagePack 类型的 guest 语言之间保持可移植性。
 
 - **`UniOid`** — `{1: h: u64, 2: l: u64}`。
 - **`UniSqlStmt`** — `{1: sql_string: string}`。
-- **`UniSqlParam`** — `{1: params: list<UniDataValue>}`。
+- **`UniSqlParam`** — `{1: params: list<UniDataValue>, 2: param_names: option<list<string>>}`。
 - **`UniTupleRow`** — `{1: fields: list<UniDataValue>}`。
 - **`UniFieldAttr`** — `{1: attr_name: string, 2: attr_value: string}`。
 - **`UniRecordField`** — `{1: field_name: string, 2: field_type: UniDataType, 3: field_attrs: list<UniFieldAttr>}`。
@@ -251,8 +279,8 @@ MessagePack 类型的 guest 语言之间保持可移植性。
 - **`UniResultType`** — `{1: ok: option<UniDataType>, 2: err: option<UniDataType>}`。
 - **`UniResultSet`** — `{1: eof: bool, 2: row_set: list<UniTupleRow>, 3: cursor: list<u8>}`。
 - **`UniError`** — `{1: err_code: u32, 2: err_msg: string, 3: err_src: string, 4: err_loc: string, 5: err_details: list<u8>}`。
-- **`UniQueryArgv`** — `{1: oid: UniOid, 2: query: UniSqlStmt, 3: param_list: UniSqlParam}`。
-- **`UniCommandArgv`** — `{1: oid: UniOid, 2: command: UniSqlStmt, 3: param_list: UniSqlParam}`。
+- **`UniQueryArgv`** — `{1: oid: UniOid, 2: query: UniSqlStmt, 3: param_list: UniSqlParam, 4: param_desc: option<UniRecordType>}`。
+- **`UniCommandArgv`** — `{1: oid: UniOid, 2: command: UniSqlStmt, 3: param_list: UniSqlParam, 4: param_desc: option<UniRecordType>}`。
 - **`UniQueryResult`** — `{1: tuple_desc: UniRecordType, 2: result_set: UniResultSet}`。
 - **`UniCommandResult`** — `{1: affected_rows: u64}`。
 - **`UniCommandReturn`** — variant：`ok(UniCommandResult)` 或 `err(UniError)`。

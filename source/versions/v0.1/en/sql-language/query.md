@@ -97,7 +97,7 @@ Select with a reversed comparison (parser normalises the shape):
 
 ```sql
 SELECT id FROM users WHERE 7 > id;
--- internally normalised to: id <= 7
+-- internally normalised to: id < 7
 ```
 
 Select with aggregate calls in the term list:

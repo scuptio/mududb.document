@@ -25,8 +25,8 @@ A MuduDB deployment consists of:
 A relation is physically stored as a pair of `TimeSeriesFile` instances:
 
 ```text
-{base_path}_key   -> key file
-{base_path}_value -> value file
+{base_path}/relation/{partition_id}.{table_id}.0.dat  -> key file
+{base_path}/relation/{partition_id}.{table_id}.1.dat  -> value file
 ```
 
 Each file is a sequence of pages whose size is configured at database creation time. The default page size is 4 KiB (`DEFAULT_PAGE_SIZE`).

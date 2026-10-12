@@ -12,55 +12,21 @@ This document specifies the `mudud.cfg` server configuration file format. The fi
 
 ## File location
 
-The server loads the configuration from the first file that exists, in this order:
+An explicit `--cfg` / `-c` path is used exclusively: a missing or invalid file fails without fallback. Without that option, the server tries `./mudud.cfg`, then `~/.mududb/mudud.cfg`; if neither exists it returns `NotFound`. Relative storage paths are resolved from the server process working directory.
 
-1. The path provided by `--cfg /path/to/mudud.cfg` (or `-c /path/to/mudud.cfg`), if given.
-2. `./mudud.cfg` in the current working directory.
-3. `~/.mududb/mudud.cfg` in the user's home directory.
+## Fields and validation
 
-If none of these files exist, the server returns a `NotFound` error. Use `mudud init-cfg` to create a default `./mudud.cfg` before starting the server.
+See [Configuration Reference](../../administration/configuration.md) for all root fields and the `[invocation_limits]`, `[replication]`, and `[backup]` tables, including defaults and validation rules.
 
-## Configuration fields
+## Compatibility
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `mpk_path` | string | `"./mpk"` | Path to the application package directory. |
-| `db_path` | string | `"./data"` | Path to the database directory. |
-| `listen_ip` | string | `127.0.0.1` | IP address to listen on. |
-| `http_listen_port` | u16 | `8300` | HTTP management API port. |
-| `http_worker_threads` | usize | `1` | HTTP worker thread count. |
-| `pg_listen_port` | u16 | `5432` | PostgreSQL wire protocol port. |
-| `component_target` | string | `p2` | Wasm component ABI target. Allowed: `p2`, `p3`. |
-| `enable_async` | boolean | `true` | Enable the WASI component runtime. |
-| `server_mode` | string | `"Tokio"` | `"Legacy"`, `"IOUring"`, or `"Tokio"`. |
-| `tcp_listen_port` | u16 | `9527` | TCP framed protocol port. |
-| `tcp_multi_port` | boolean | `false` | One TCP listener per worker. |
-| `worker_threads` | usize | `0` | Worker thread count. `0` means use available parallelism. |
-| `io_uring_ring_entries` | u32 | `1024` | io_uring completion queue depth. |
-| `io_uring_accept_multishot` | boolean | `true` | Enable io_uring accept multishot. |
-| `io_uring_recv_multishot` | boolean | `true` | Enable io_uring recv multishot. |
-| `io_uring_enable_fixed_buffers` | boolean | `false` | Enable io_uring fixed buffers. |
-| `io_uring_enable_fixed_files` | boolean | `false` | Enable io_uring fixed files. |
-| `routing_mode` | string | `"ConnectionId"` | `"ConnectionId"`, `"PlayerId"`, or `"RemoteHash"`. |
-| `log_chunk_size` | u64 | `64 * 1024 * 1024` | io_uring log chunk size in bytes. |
-| `page_size` | usize | `4096` | Database page size in bytes. This is a persistent setting; changing it for an existing database requires migration or re-initialization. |
+There is no serialized `version` field. Only fields annotated with Serde defaults can be omitted; required fields still fail decoding. Unknown root fields are currently ignored, whereas `[invocation_limits]` rejects unknown fields. An arbitrary `version = 2` does not select a new parser or guarantee rejection, so operators must check compatibility with the target binary before rollback.
 
-## Compatibility notes
+`server_mode` accepts case-insensitive `Legacy`, `IOUring` (also `io_uring`), and `Tokio`; routing accepts `ConnectionId` / `connection_id`, `PlayerId` / `player_id`, and `RemoteHash` / `remote_hash`. `component_target` accepts `p2` or `p3`.
 
-- There is currently no explicit `version` field in the file. The format version is implicit and derived from the set of fields recognized by the parser.
-- `serde(default)` ensures that missing fields use the default values, allowing older config files to load on newer binaries as long as they use the current field names.
+`db_path` and `page_size` are persistent settings. Pointing at another directory selects another database; changing the page size of existing data requires migration or reinitialization. Most settings require restart. The mutability classification of `tcp_multi_port` does not itself provide a configuration reload command.
 
-## Upgrade and rollback rules
+## Implementation
 
-- **Upgrade:** When a v2 config format is introduced, an explicit `version = 2` field will be required. New optional fields may be added to v1 without bumping the version if they use `serde(default)`.
-- **Rollback:** A newer binary can read older config files because of defaults, provided they use the current field names. A v1-only binary encountering a v2 config will fail to parse unknown fields and return a decode error; it will not modify the file.
-- **Migration:** No migration tool is required for additive changes. For breaking changes, an offline config migration tool must be provided.
-
-## Deprecation policy
-
-- A new explicit `version` field will be added when a breaking change is introduced.
-
-## References
-
-- Parser: `mudu_runtime/src/backend/mudud_cfg/mod.rs`
-- Example config: `mudud init-cfg`
+- `crates/db-kernel/mudu_runtime/src/backend/mudud_cfg/{mod,io,replication}.rs`
+- `crates/db-kernel/runtime_wasm/src/service/invocation_limits.rs`

@@ -41,10 +41,7 @@ command(sql: string, params?: [Value]) -> affected_rows: u64
 
 ## Errors
 
-- `SyntaxError`: the SQL statement is invalid.
-- `ConstraintViolation`: schema or uniqueness violation.
-- `NotFound`: update/delete on a non-existing key, depending on op mode.
-- `SerializationError` / `Conflict`: transaction conflict requiring retry.
+Invalid SQL can return `Parse`; invalid session/schema/type and transaction conflicts return the host error. Inspect the actual `MuduError` code and message; the API does not define separate `SyntaxError` or `PartialFailure` result types.
 
 ## Transaction semantics
 
@@ -66,4 +63,4 @@ assert_eq!(affected, 1);
 
 - Use `command` for DML statements. For `SELECT`, use `query`.
 - For multiple statements in one call, consider `batch`.
-- Prefer typed syscall primitives (`read`, `write`) for structured access when available.
+- `get`, `put`, and `range` address raw byte-key KV data. For typed relational results use `query`; see [Relation Syscalls](relation.md) for direct row access.

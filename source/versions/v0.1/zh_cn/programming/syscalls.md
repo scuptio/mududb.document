@@ -1,19 +1,19 @@
 # 系统调用
 
-MuduDB 过程通过一组精简的受控系统调用与内核交互。这些页面记录了每个系统调用的用途、预期输入以及事务/一致性影响。
-
-SQL `query` 系统调用将结果行映射为 `Entity` 结构体；KV 存储支持点读、点写、范围扫描和删除。`mudu_fs_*` 文件系统调用家族见 [文件系统对象类型](filesystem.md)。宿主还实现了 `relation_get` / `relation_update` / `relation_insert`（绕过 SQL 解析的行访问）以及用于分页大结果集的 `fetch` 游标；这些尚无专门页面。
+WIT 边界声明 23 个操作：会话 2 个、SQL 3 个、KV 4 个、文件系统 11 个、relation 访问 3 个。仓库内 Rust facade 尚未封装 KV `delete`，请区分 facade 可用性与宿主/WIT 支持。
 
 ```{toctree}
 :maxdepth: 1
 
 syscalls/open
 syscalls/close
-syscalls/read
-syscalls/write
-syscalls/range-scan
-syscalls/delete
 syscalls/query
-syscalls/batch
 syscalls/command
+syscalls/batch
+syscalls/get
+syscalls/put
+syscalls/delete
+syscalls/range
+syscalls/fs
+syscalls/relation
 ```

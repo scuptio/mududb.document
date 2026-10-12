@@ -53,3 +53,5 @@ Use `false` for simple scripts, tests, or when debugging step-by-step.
 - Partition routing and topology discovery are kernel-specific features.
 
 See [Partitioning](partitioning.md) for routing details and [Mudu Procedure](../programming/mudu_procedure.md) for the procedure programming model.
+
+The async session manager may improve connection reuse and concurrency, but a synchronous facade call still waits for its reply. It does not make the caller nonblocking. For explicit native runtime selection and differences from hosted MPK execution, see [SDKs and Execution Modes](../programming/sdk.md).

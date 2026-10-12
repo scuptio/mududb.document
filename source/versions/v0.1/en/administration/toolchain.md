@@ -28,3 +28,7 @@ The MuduDB toolchain is organized around building, packaging, deploying, and inv
 8. **Invoke**: run `mcli app-invoke --app <app> --module <module> --proc <proc> --json '{...}'`.
 
 See [Application Packages](packages.md) for the package format and [Your First MPK Package](../tutorial/tutorials/wallet.md) for a complete walkthrough.
+
+## SQL checking
+
+`mgen check-sql --lang rust --ddl sql/ddl.sql --input src/rust` checks SQL literals against the DDL. It is included in the Rust Wallet package build. The language compiler checks Rust types; neither check replaces runtime validation. See [SDKs and Execution Modes](../programming/sdk.md) for the portable `mpm build` workflow and per-language requirements.

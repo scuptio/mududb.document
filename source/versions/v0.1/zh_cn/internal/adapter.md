@@ -53,3 +53,5 @@ mudud://127.0.0.1:9527/ycsb?http_addr=127.0.0.1:8300
 - 分区路由与拓扑发现是内核专属特性。
 
 路由细节请参见[分区](partitioning.md)，过程编程模型请参见 [Mudu 过程](../programming/mudu_procedure.md)。
+
+异步会话管理器可改善连接复用与并发，但同步 facade 调用仍需等待响应，不会使调用方变为非阻塞。显式选择本地运行库及其与宿主 MPK 执行的区别见 [SDK 与执行模式](../programming/sdk.md)。

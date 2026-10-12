@@ -102,3 +102,7 @@ mcli --http-addr 127.0.0.1:8300 restore-logical --label daily-1 --dir /dumps --d
 - 基础备份覆盖单台服务器。`restore` 与 `pitr` 在本地针对其 `backup_dir` 与 `archive_dir` 运行，不需要运行中的服务器。
 
 全部 `[backup]` 字段请参见[配置参考](configuration.md)，完整命令参考请参见 [mcli 管理接口（HTTP）](../reference/mcli-admin.md)。
+
+`[backup]` 的 WAL 归档配置接入了 `Tokio` 后端的 worker 配置。当前 `IOUring` 启动路径没有将该配置传给 worker；其基础备份和逻辑导出管理端点不代表持续 WAL 归档已启用。本文的归档/PITR 流程应使用 `Tokio`。`archive_mode = "always"` 当前尚未将归档持久化接入提交确认门控。
+
+文件对象内容不进入 WAL。当前 worker 快照复制关系 `.dat` 文件和 KV 状态，不包含 `fs/` 下的 generation 文件；逻辑导出也只包含 schema 和表 CSV，不携带对象内容文件。因此仅靠这些机制不能完整复制或恢复文件对象内容。使用 FS 列时，需单独保存并验证对象内容。

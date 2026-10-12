@@ -46,3 +46,5 @@ This model suits applications that need:
 
 See [Mudu Procedure](../programming/mudu_procedure.md) for the programming model, [System Call Reference](../programming/syscalls.md) for the syscall API, and [WebAssembly Integration](wasm.md) for the component runtime details.
 
+
+See [Suspendable Procedure Execution](suspendable-execution.md) for fresh Store creation, bounded synchronous execution and cancellation/commit boundaries. The interface also includes [filesystem](../programming/syscalls/fs.md) and [relation](../programming/syscalls/relation.md) operations; low-level WIT signatures differ from the workspace Rust facade.

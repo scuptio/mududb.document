@@ -194,3 +194,18 @@ Publishing is manual: run the workflow with `command=publish`. Pushes to `main` 
 4. Inspect `build/html/index.html` and one language page.
 5. Push to `main` to run the build check.
 6. Run the workflow manually with `command=publish` to publish generated HTML.
+
+## Documentation baseline
+
+The v0.1 English and Chinese pages were reconciled on 2026-10-12 against
+MuduDB source commit `614413db`, with `scuptio/mududb.document` commit
+`c9451e7` as a reference. Source implementation takes precedence when the
+reference documentation differs. This records a source-checkout baseline,
+not the availability of a published binary release.
+
+When updating these pages, check configuration loading and defaults in
+`mudu_runtime`, CLI arguments in `mudu_cli` and the packaging tools, syscall
+shapes in `mudu_binding/wit/uni-syscall.wit`, runtime isolation in
+`runtime_wasm`, SQL behavior in the parser/binder and integration tests,
+and SDK workflows in `doc/dev/sdk_distribution.md`. Update both languages
+and their toctrees, then run `python scripts/build_docs.py --clean`.

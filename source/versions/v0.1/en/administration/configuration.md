@@ -4,13 +4,7 @@
 
 ## File location
 
-The server loads the first file that exists, in this order:
-
-1. The path provided by `--cfg /path/to/mudud.cfg` (or `-c /path/to/mudud.cfg`), if given.
-2. `./mudud.cfg` in the current working directory.
-3. `~/.mududb/mudud.cfg` in the user's home directory.
-
-If none of these files exist, `mudud` returns a `NotFound` error. Use `mudud init-cfg` to create a default `./mudud.cfg` before starting the server.
+An explicit `--cfg` / `-c` path is used exclusively: a missing or invalid file fails without fallback. Without that option, the server tries `./mudud.cfg`, then `~/.mududb/mudud.cfg`; if neither exists it returns `NotFound`. Relative storage paths are resolved from the server process working directory.
 
 ## Generate a default config
 
@@ -20,6 +14,8 @@ mudud init-cfg
 
 ## Configuration fields
 
+The table lists generated configuration values and defaults for optional fields. `mpk_path`, `db_path`, `listen_ip`, `http_listen_port`, `pg_listen_port`, and `enable_async` are required in a hand-written TOML file; the parser does not fill them in. `mudud init-cfg` writes `./mudud.cfg` and overwrites an existing file.
+
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `mpk_path` | string | `"./mpk"` | Path to the application package directory. |
@@ -27,7 +23,7 @@ mudud init-cfg
 | `listen_ip` | string | `127.0.0.1` | IP address to listen on. |
 | `http_listen_port` | u16 | `8300` | HTTP management API port. |
 | `http_worker_threads` | usize | `1` | HTTP worker thread count. |
-| `pg_listen_port` | u16 | `5432` | PostgreSQL wire protocol port. |
+| `pg_listen_port` | u16 | `5432` | PostgreSQL wire protocol port (Legacy only). |
 | `component_target` | string | `p2` | Wasm component ABI target. Allowed: `p2`, `p3`. |
 | `enable_async` | boolean | `true` | Enable the WASI component runtime. |
 | `server_mode` | string | `"Tokio"` | `"Legacy"`, `"IOUring"`, or `"Tokio"`. |
@@ -78,7 +74,7 @@ The optional `[invocation_limits]` table caps WASM procedure execution. Omitted 
 
 ## Replication
 
-The optional `[replication]` table configures primary-replica streaming replication or Raft fault tolerance. When absent, the server runs as a single node. Replication requires a kernel server mode (`Tokio` or `IOUring`); the `Legacy` backend rejects it at startup. Exactly one of the `[replication.stream]` / `[replication.raft]` subsections must be present — the present subsection selects the mode.
+The optional `[replication]` table configures primary-replica streaming replication or Raft fault tolerance. When absent, the server runs as a single node. Replication currently requires `server_mode = "Tokio"`; `Legacy` and `IOUring` reject it at startup. Exactly one of the `[replication.stream]` / `[replication.raft]` subsections must be present — the present subsection selects the mode.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
@@ -140,3 +136,7 @@ page_size = 4096
 ```
 
 See the [Server Configuration Contract](../reference/contracts/mudud_cfg_v1.md) for compatibility and upgrade rules.
+
+WAL archiving from `[backup]` is wired into the `Tokio` backend's worker configuration. The current `IOUring` startup path does not pass that configuration to workers: its base-backup and logical-dump management endpoints do not imply continuous WAL archiving. Use `Tokio` for the documented archive/PITR workflow. `archive_mode = "always"` currently does not gate commit acknowledgements on archive durability.
+
+See [Replication and Raft Fault Tolerance](replication.md) for complete cluster examples and [Server Management](server.md) for listeners by mode.

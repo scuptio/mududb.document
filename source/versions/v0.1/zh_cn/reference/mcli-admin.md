@@ -73,28 +73,30 @@ mcli --http-addr 127.0.0.1:8300 partition-route --rule-name order_rule --key ten
 
 这些命令连接 TCP 协议端点（`--addr`，默认 `127.0.0.1:9527`）。请求体可以用内联 JSON（`--json`）或 JSON 文件（`--json-file`；用 `-` 从 stdin 读取）提供。
 
+SQL 示例假定已安装含 `users(id)` 表的 `demo` 应用。原始 KV 请求必须提供有效会话 OID：`{ "h": 高64位, "l": 低64位 }`；原始 `invoke` 必须提供 `session_id`（u64 数字或十进制 u128 字符串）及编码后的过程参数。下列 ID 与负载是占位示例，不会创建会话。通常应使用 `app-invoke` 自动建立会话并按描述符转换参数。
+
 ### 执行 SQL 查询或命令
 
 ```bash
-mcli --addr 127.0.0.1:9527 command --json '{"app_name":"demo","sql":"select 1"}'
+mcli --addr 127.0.0.1:9527 command --json '{"app_name":"demo","sql":"SELECT id FROM users"}'
 ```
 
 ### 写入键值项
 
 ```bash
-mcli --addr 127.0.0.1:9527 put --json '{"key":"k","value":"v"}'
+mcli --addr 127.0.0.1:9527 put --json '{"oid":{"h":0,"l":1},"key":"k","value":"v"}'
 ```
 
 ### 读取键
 
 ```bash
-mcli --addr 127.0.0.1:9527 get --json '{"key":"k"}'
+mcli --addr 127.0.0.1:9527 get --json '{"oid":{"h":0,"l":1},"key":"k"}'
 ```
 
 ### 扫描键范围
 
 ```bash
-mcli --addr 127.0.0.1:9527 range --json '{"start_key":"a","end_key":"z"}'
+mcli --addr 127.0.0.1:9527 range --json '{"oid":{"h":0,"l":1},"start_key":"a","end_key":"z"}'
 ```
 
 ### 以原始请求调用过程
@@ -102,7 +104,7 @@ mcli --addr 127.0.0.1:9527 range --json '{"start_key":"a","end_key":"z"}'
 `invoke` 通过 TCP 发送原始过程请求。带类型的变体是 `app-invoke`（见[客户端](../administration/client.md)），它先通过 HTTP 获取过程描述符，再通过 TCP 调用。
 
 ```bash
-mcli --addr 127.0.0.1:9527 invoke --json '{"procedure_name":"app/mod/proc","procedure_parameters":{}}'
+mcli --addr 127.0.0.1:9527 invoke --json '{"session_id":"1","procedure_name":"app/mod/proc","procedure_parameters":{}}'
 ```
 
 ## 复制管理

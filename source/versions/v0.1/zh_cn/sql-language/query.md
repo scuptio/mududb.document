@@ -97,7 +97,7 @@ SELECT s_i_id, s_quantity FROM stock WHERE s_w_id = ? AND s_i_id = ?;
 
 ```sql
 SELECT id FROM users WHERE 7 > id;
--- internally normalised to: id <= 7
+-- internally normalised to: id < 7
 ```
 
 选择列表中使用聚合函数调用：

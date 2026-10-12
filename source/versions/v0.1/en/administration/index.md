@@ -8,6 +8,7 @@ Operational guidance for running and managing MuduDB servers, CLIs, packages, an
 client
 server
 configuration
+replication
 packages
 toolchain
 backup

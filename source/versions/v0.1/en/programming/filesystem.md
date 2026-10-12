@@ -87,3 +87,5 @@ The fs family has eleven syscalls, exposed through `sys_interface::sync_api` and
 ## Standalone adapters
 
 On the standalone SQLite / PostgreSQL / MySQL adapter paths, the fs syscalls are emulated on the local filesystem under `{db_path}.fs/` with the same flat layout, pinned to a single generation (always `1`, with state reported as SEALED) and without MVCC, DDL, or catalog support. The standalone `mudud` driver path returns `NotImplemented`: fs frames are not yet wired into the mudud wire protocol.
+
+Filesystem content is stored outside WAL. The current worker snapshot copies relation `.dat` files and KV state, not the `fs/` generation files; logical dumps contain schema and table CSV rather than object-content files. These mechanisms alone therefore do not provide complete replication or recovery of filesystem object content. Preserve and validate that content separately when using FS columns.

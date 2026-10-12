@@ -11,15 +11,7 @@ first-session
 
 ## 安装路径
 
-````{grid} 1 1 2 2
-```{grid-item-card} 发布版安装
-使用 `mudup install`（计划中，尚不可用）进行服务器部署、日常使用以及快速验证。
-```
-
-```{grid-item-card} 源码构建
-在开发内核、工具链、API 绑定或示例应用程序时，从源码构建。
-```
-````
+本工作区请使用[源码构建流程](install.md)。计划中的 `mudup` 发布版安装器尚未实现。语言分发包与本地应用见 [SDK 与执行模式](../../programming/sdk.md)。
 
 ## 连接字符串 (MUDU_CONNECTION)
 

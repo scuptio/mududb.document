@@ -9,17 +9,9 @@ install
 first-session
 ```
 
-## Installation Paths
+## Installation Path
 
-````{grid} 1 1 2 2
-```{grid-item-card} Release Installation
-Use `mudup install` (planned; not yet available) for server deployment, daily use, and quick validation.
-```
-
-```{grid-item-card} Source Build
-Build from source when developing the kernel, toolchain, API bindings, or example applications.
-```
-````
+Use the [source build instructions](install.md) for this checkout. The planned `mudup` release installer is not implemented. For language distributions and local applications, see [SDKs and Execution Modes](../../programming/sdk.md).
 
 ## Connection string (MUDU_CONNECTION)
 

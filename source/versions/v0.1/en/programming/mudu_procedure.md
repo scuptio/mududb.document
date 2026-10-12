@@ -51,8 +51,8 @@ Why WASI?
 Typical toolchain flow:
 
 1. Author procedure in a supported language (this guide uses the Rust facade).
-2. Build/compile to a WASM component (wasm-ld / rust + wasm32-wasip2 target).
-3. Optionally run through mudu-transpiler to apply color-bind transformations (see below).
+2. Run `mtp` to generate wrappers and apply the selected sync/async transformation.
+3. Compile the generated source to a WASM component; use the example build tasks to preserve this order.
 4. Deploy the module (put the mpk/package into mpk_path) and register it with the kernel.
 5. Invoke interactively or as stored procedure; the kernel handles syscalls, transactions, and routing.
 
@@ -164,12 +164,13 @@ Benefits:
 
 The transpiler rewrites syscall calls into async syscall invocations under the hood so that the runtime can yield when waiting for I/O or remote RPCs.
 
-## 9. Other considerations
+## 9. Runtime constraints
 
-- Debugging & testing: developer workflows include local WASI execution, unit tests, and interactive session debugging. The tooling aims to provide source-level debugging aids when possible.
-- Resource limits & quotas: the kernel enforces CPU, memory, and syscall quotas per procedure to maintain isolation.
-- Permissions & auditing: procedures are registered with metadata (owner, version) and can be limited via capability sets; auditing captures invocation and syscall traces.
-- Versioning & hot-swap: modules are versioned in the mpk packaging model; operator workflows support rolling deployment and graceful draining of sessions.
+Invocation limits are enabled by default and configured in `[invocation_limits]`: memory, fuel, wall-clock timeout, input/output sizes, host calls, resources and admission concurrency. See [Configuration Reference](../administration/configuration.md).
+
+Automatic transaction handling describes the hosted invocation path. Native adapter calls follow the selected backend's transaction semantics; cross-worker distributed atomic commit is not implemented. Do not infer rolling upgrades, session draining, per-procedure capability policies or a complete audit trail from MPK packaging alone.
+
+See [SDKs and Execution Modes](sdk.md) for choosing hosted versus local execution, and [Suspendable Procedure Execution](../internal/suspendable-execution.md) for async-world suspension and per-invocation isolation.
 
 ## References & examples
 

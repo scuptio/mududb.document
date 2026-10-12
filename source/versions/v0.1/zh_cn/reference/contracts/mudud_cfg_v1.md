@@ -12,55 +12,21 @@
 
 ## 文件位置
 
-服务端按以下顺序查找第一个存在的配置文件：
+显式指定 `--cfg` / `-c` 时只读取该路径；文件缺失或无效会报错，不会回退查找其他配置。未指定时依次查找 `./mudud.cfg`、`~/.mududb/mudud.cfg`；都不存在则返回 `NotFound`。相对存储路径以服务端进程的工作目录为基准。
 
-1. `--cfg /path/to/mudud.cfg`（或 `-c /path/to/mudud.cfg`）指定的路径（如果提供）。
-2. 当前工作目录下的 `./mudud.cfg`。
-3. 用户主目录下的 `~/.mududb/mudud.cfg`。
+## 字段与校验
 
-若上述文件都不存在，服务端返回 `NotFound` 错误。启动前请使用 `mudud init-cfg` 生成默认的 `./mudud.cfg`。
+全部根字段及 `[invocation_limits]`、`[replication]`、`[backup]` 表的默认值和校验规则见[配置参考](../../administration/configuration.md)。
 
-## 配置字段
+## 兼容性
 
-| 字段 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `mpk_path` | string | `"./mpk"` | 应用包目录路径。 |
-| `db_path` | string | `"./data"` | 数据库文件目录路径。 |
-| `listen_ip` | string | `127.0.0.1` | 监听 IP 地址。 |
-| `http_listen_port` | u16 | `8300` | HTTP 管理 API 端口。 |
-| `http_worker_threads` | usize | `1` | HTTP worker 线程数。 |
-| `pg_listen_port` | u16 | `5432` | PostgreSQL wire protocol 端口。 |
-| `component_target` | string | `p2` | Wasm 组件 ABI 目标。允许值：`p2`、`p3`。 |
-| `enable_async` | boolean | `true` | 是否启用 WASI 组件运行时。 |
-| `server_mode` | string | `"Tokio"` | `"Legacy"`、`"IOUring"` 或 `"Tokio"`。 |
-| `tcp_listen_port` | u16 | `9527` | TCP 定帧协议端口。 |
-| `tcp_multi_port` | boolean | `false` | 每个 worker 一个 TCP 监听器。 |
-| `worker_threads` | usize | `0` | Worker 线程数。`0` 表示使用可用并行度。 |
-| `io_uring_ring_entries` | u32 | `1024` | io_uring 完成队列深度。 |
-| `io_uring_accept_multishot` | boolean | `true` | 启用 io_uring accept multishot。 |
-| `io_uring_recv_multishot` | boolean | `true` | 启用 io_uring recv multishot。 |
-| `io_uring_enable_fixed_buffers` | boolean | `false` | 启用 io_uring fixed buffers。 |
-| `io_uring_enable_fixed_files` | boolean | `false` | 启用 io_uring fixed files。 |
-| `routing_mode` | string | `"ConnectionId"` | `"ConnectionId"`、`"PlayerId"` 或 `"RemoteHash"`。 |
-| `log_chunk_size` | u64 | `64 * 1024 * 1024` | io_uring 日志 chunk 大小，单位字节。 |
-| `page_size` | usize | `4096` | 数据库页大小，单位字节。该字段是持久化配置；已有数据库变更该值需要迁移或重新初始化。 |
+配置文件没有序列化的 `version` 字段。仅标记了 Serde 默认值的字段可以省略，必填字段缺失仍会解码失败。当前根级未知字段会被忽略，而 `[invocation_limits]` 拒绝未知字段。任意添加 `version = 2` 不会选择新解析器，也不能保证旧版本拒绝加载，回滚前需核对目标二进制的兼容性。
 
-## 兼容性说明
+`server_mode` 不区分大小写，接受 `Legacy`、`IOUring`（也接受 `io_uring`）和 `Tokio`；路由模式接受 `ConnectionId` / `connection_id`、`PlayerId` / `player_id`、`RemoteHash` / `remote_hash`。`component_target` 接受 `p2` 或 `p3`。
 
-- 当前文件中无显式 `version` 字段。格式版本是隐式的，由解析器识别的字段集合决定。
-- `serde(default)` 保证缺失字段使用默认值，使使用当前字段名的旧配置文件可在新二进制上加载。
+`db_path` 和 `page_size` 属于持久化配置。切换路径即选择另一数据库；变更已有数据的页大小需要迁移或重新初始化。多数配置变更需重启。`tcp_multi_port` 的可变性分类本身不代表已有配置热重载命令。
 
-## 升级与回滚规则
+## 实现依据
 
-- **升级：** 引入 v2 配置格式时，将要求显式 `version = 2` 字段。若新增可选字段且使用 `serde(default)`，可不提升 v1 版本号。
-- **回滚：** 新二进制可读取使用当前字段名的旧配置文件（得益于默认值）。v1-only 二进制遇到 v2 配置时因未知字段解析失败并返回解码错误，不会修改文件。
-- **迁移：** 增量化变更不需要迁移工具。破坏性变更需要提供离线配置迁移工具。
-
-## 废弃策略
-
-- 引入破坏性变更时将添加显式 `version` 字段。
-
-## 参考
-
-- 解析器：`mudu_runtime/src/backend/mudud_cfg/mod.rs`
-- 示例配置：`mudud init-cfg`
+- `crates/db-kernel/mudu_runtime/src/backend/mudud_cfg/{mod,io,replication}.rs`
+- `crates/db-kernel/runtime_wasm/src/service/invocation_limits.rs`
