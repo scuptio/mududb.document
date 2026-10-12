@@ -48,3 +48,5 @@ These limits help isolate user code from the kernel and from other procedures.
 ## Package format
 
 Compiled components are packaged into `.mpk` archives together with DDL, descriptors, and optional initialization data. See [Application Packages](../administration/packages.md) and the [MPK Manifest Contract](../reference/contracts/mpk_manifest_v1.md).
+
+The configuration parser accepts `p3`, but procedure export-name selection currently returns `NotImplemented` for P3. Use `component_target = "p2"` for the documented invocation path.

@@ -31,3 +31,11 @@ MuduDB 采用双层架构：
 ## 边界与兼容性
 
 内核的磁盘格式与网络线格式由[参考资料](../reference/contracts/index.md)中的版本化契约管理。面向用户的文档应描述子系统边界，而不应将实现细节转化为兼容性承诺。
+
+## 源码布局
+
+仓库根目录没有 `Cargo.toml`。`crates/common`、`crates/db-kernel`、`crates/sdk`、`crates/tools` 是独立工作区；`example/mpk`、`crates/sdk/mudu_api/rust` 和 `crates/bindings` 也有独立构建上下文。本地适配器 ABI 工作区使用隔离的 target 目录。
+
+`mudu_kernel` 是十四个内核 crate 的 facade：`catalog`、`index`、`wal`、`xengine`、`storage`、`meta`、`command`、`sql`、`conn`、`xcontract`、`worker`、`repl`、`backup`、`server`。`runtime_wasm` 托管组件，`mudu_runtime` 集成协议服务和管理入口，`mudu_raft` 实现共识。依赖规则见源码仓库的 `ARCHITECTURE.md`。
+
+应按工作区执行检查，例如 `cargo test --manifest-path crates/db-kernel/Cargo.toml --workspace`。根级协调命令为 `cargo make`、`cargo make check`、`cargo make test`。

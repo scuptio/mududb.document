@@ -4,13 +4,7 @@
 
 ## 文件位置
 
-服务端按以下顺序加载第一个存在的文件：
-
-1. `--cfg /path/to/mudud.cfg`（或 `-c /path/to/mudud.cfg`）指定的路径（若提供）。
-2. 当前工作目录下的 `./mudud.cfg`。
-3. 用户主目录下的 `~/.mududb/mudud.cfg`。
-
-若都不存在，`mudud` 返回 `NotFound` 错误。启动前可使用 `mudud init-cfg` 生成默认的 `./mudud.cfg`。
+显式指定 `--cfg` / `-c` 时只读取该路径；文件缺失或无效会报错，不会回退查找其他配置。未指定时依次查找 `./mudud.cfg`、`~/.mududb/mudud.cfg`；都不存在则返回 `NotFound`。相对存储路径以服务端进程的工作目录为基准。
 
 ## 生成默认配置
 
@@ -20,6 +14,8 @@ mudud init-cfg
 
 ## 配置字段
 
+下表列出生成配置的取值及可选字段默认值。手写 TOML 必须包含 `mpk_path`、`db_path`、`listen_ip`、`http_listen_port`、`pg_listen_port` 和 `enable_async`，解析器不会为它们补默认值。`mudud init-cfg` 写入 `./mudud.cfg`，并会覆盖已有文件。
+
 | 字段 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
 | `mpk_path` | string | `"./mpk"` | 应用包目录路径。 |
@@ -27,7 +23,7 @@ mudud init-cfg
 | `listen_ip` | string | `127.0.0.1` | 监听 IP 地址。 |
 | `http_listen_port` | u16 | `8300` | HTTP 管理 API 端口。 |
 | `http_worker_threads` | usize | `1` | HTTP worker 线程数。 |
-| `pg_listen_port` | u16 | `5432` | PostgreSQL wire protocol 端口。 |
+| `pg_listen_port` | u16 | `5432` | PostgreSQL wire protocol 端口（仅 Legacy）。 |
 | `component_target` | string | `p2` | Wasm 组件 ABI 目标。允许值：`p2`、`p3`。 |
 | `enable_async` | boolean | `true` | 是否启用 WASI 组件运行时。 |
 | `server_mode` | string | `"Tokio"` | `"Legacy"`、`"IOUring"` 或 `"Tokio"`。 |
@@ -78,7 +74,7 @@ mudud init-cfg
 
 ## 复制
 
-可选的 `[replication]` 表配置主从流复制或 Raft 容错。缺省时服务器以单机运行。复制要求内核服务端模式（`Tokio` 或 `IOUring`）；`Legacy` 后端会在启动时拒绝。`[replication.stream]` 与 `[replication.raft]` 子段必须且只能存在一个——存在的子段即模式。
+可选的 `[replication]` 表配置主从流复制或 Raft 容错。缺省时服务器以单机运行。复制目前要求 `server_mode = "Tokio"`；`Legacy` 和 `IOUring` 均会拒绝启动。`[replication.stream]` 与 `[replication.raft]` 子段必须且只能存在一个——存在的子段即模式。
 
 | 字段 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
@@ -140,3 +136,7 @@ page_size = 4096
 ```
 
 兼容性与升级规则请参见[服务端配置契约](../reference/contracts/mudud_cfg_v1.md)。
+
+`[backup]` 的 WAL 归档配置接入了 `Tokio` 后端的 worker 配置。当前 `IOUring` 启动路径没有将该配置传给 worker；其基础备份和逻辑导出管理端点不代表持续 WAL 归档已启用。本文的归档/PITR 流程应使用 `Tokio`。`archive_mode = "always"` 当前尚未将归档持久化接入提交确认门控。
+
+完整集群示例见[复制与 Raft 容错](replication.md)，各模式的监听端点见[服务端管理](server.md)。

@@ -48,3 +48,5 @@ MuduDB 过程被编译为面向 `wasm32-wasip2` 平台的 WebAssembly 组件。�
 ## 包格式
 
 编译后的组件与 DDL、描述符及可选初始化数据一起打包为 `.mpk` 归档。详见[应用包](../administration/packages.md)与 [MPK 清单契约](../reference/contracts/mpk_manifest_v1.md)。
+
+配置解析器接受 `p3`，但当前过程导出名选择对 P3 返回 `NotImplemented`。本文的过程调用路径应使用 `component_target = "p2"`。

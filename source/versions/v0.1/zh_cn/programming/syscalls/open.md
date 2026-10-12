@@ -28,23 +28,22 @@ open() -> OID
 
 ## 返回值
 
-- `OID` —— 会话标识符，作为后续 `read`、`write`、`query`、`command` 等系统调用的第一个参数。
+- `OID` —— 会话标识符，作为后续 `get`、`put`、`query`、`command` 等系统调用的第一个参数。
 
 ## 错误
 
-- `OutOfMemory`：运行时无法分配会话状态。
-- `NotSupported`：当前状态下运行时禁止创建新会话。
+创建会话可能因宿主错误或调用资源预算耗尽而失败。本地调用需显式配置 standalone adapter；普通宿主侧 facade 可返回 `NotImplemented`。
 
 ## 事务语义
 
 - 打开会话不会隐式启动持久事务。
-- 事务边界由宿主或事务相关系统调用控制。
+- 事务边界由宿主控制；guest 接口没有独立的 commit/rollback syscall。
 
 ## 示例
 
 ```rust
 let oid = mudu_open()?;
-let row = read("accounts", 42, None)?;
+let value = mudu_get(oid, b"accounts:42")?;
 mudu_close(oid)?;
 ```
 

@@ -25,8 +25,8 @@
 一个 relation 在物理上由一对 `TimeSeriesFile` 组成：
 
 ```text
-{base_path}_key   -> key 文件
-{base_path}_value -> value 文件
+{base_path}/relation/{partition_id}.{table_id}.0.dat  -> key 文件
+{base_path}/relation/{partition_id}.{table_id}.1.dat  -> value 文件
 ```
 
 每个文件都是一系列页面，页面大小在数据库创建时配置，默认为 4 KiB（`DEFAULT_PAGE_SIZE`）。

@@ -102,3 +102,7 @@ The `mcli` commands map to these HTTP management endpoints:
 - A base backup covers one server. `restore` and `pitr` run locally against its `backup_dir` and `archive_dir` and do not need a running server.
 
 See the [Configuration Reference](configuration.md) for all `[backup]` fields and [mcli Management Interface (HTTP)](../reference/mcli-admin.md) for the full command reference.
+
+WAL archiving from `[backup]` is wired into the `Tokio` backend's worker configuration. The current `IOUring` startup path does not pass that configuration to workers: its base-backup and logical-dump management endpoints do not imply continuous WAL archiving. Use `Tokio` for the documented archive/PITR workflow. `archive_mode = "always"` currently does not gate commit acknowledgements on archive durability.
+
+Filesystem content is stored outside WAL. The current worker snapshot copies relation `.dat` files and KV state, not the `fs/` generation files; logical dumps contain schema and table CSV rather than object-content files. These mechanisms alone therefore do not provide complete replication or recovery of filesystem object content. Preserve and validate that content separately when using FS columns.

@@ -32,7 +32,7 @@ close(session_id: OID) -> ()
 
 ## 错误
 
-- `InvalidSession`：提供的 `OID` 不对应一个已打开的会话。
+- `EntityNotFound`：提供的 `OID` 不对应一个已打开的会话。
 
 ## 事务语义
 
@@ -50,4 +50,4 @@ mudu_close(oid)?;
 ## 注意
 
 - 过程应显式关闭它打开的会话，以避免资源泄漏。
-- `close` 后不要再使用已关闭的 `OID`，否则会返回 `InvalidSession`。
+- `close` 后不要再使用已关闭的 `OID`，否则会返回 `EntityNotFound`。

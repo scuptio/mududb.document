@@ -45,3 +45,5 @@
 - 希望避免重复客户端-服务器往返的数据本地执行。
 
 编程模型请参见 [Mudu 过程](../programming/mudu_procedure.md)，系统调用 API 请参见 [系统调用参考](../programming/syscalls.md)，组件运行时细节请参见 [WebAssembly 集成](wasm.md)。
+
+全新 Store 创建、有界同步执行和取消/提交边界见[可挂起的过程执行](suspendable-execution.md)。接口还包含[文件系统](../programming/syscalls/fs.md)与 [relation](../programming/syscalls/relation.md) 操作；底层 WIT 签名与仓库内 Rust facade 有所区别。

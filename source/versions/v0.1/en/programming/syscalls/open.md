@@ -28,23 +28,22 @@ None.
 
 ## Return value
 
-- `OID` — a session identifier used as the first argument to subsequent syscalls such as `read`, `write`, `query`, and `command`.
+- `OID` — a session identifier used as the first argument to subsequent syscalls such as `get`, `put`, `query`, and `command`.
 
 ## Errors
 
-- `OutOfMemory`: the runtime cannot allocate session state.
-- `NotSupported`: the runtime does not allow new sessions in the current state.
+Session creation can fail with a host error, including invocation resource-budget exhaustion. Native calls require an explicitly configured standalone adapter; the plain host-side facade can return `NotImplemented`.
 
 ## Transaction semantics
 
 - Opening a session does not implicitly start a durable transaction.
-- Transaction boundaries are controlled by the host or by transaction-related syscalls.
+- Transaction boundaries are controlled by the host; the guest interface exposes no dedicated commit/rollback syscall.
 
 ## Example
 
 ```rust
 let oid = mudu_open()?;
-let row = read("accounts", 42, None)?;
+let value = mudu_get(oid, b"accounts:42")?;
 mudu_close(oid)?;
 ```
 

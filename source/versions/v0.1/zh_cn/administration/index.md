@@ -8,6 +8,7 @@
 client
 server
 configuration
+replication
 packages
 toolchain
 backup

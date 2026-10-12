@@ -109,6 +109,34 @@ maps each WIT function to the same internal header + MessagePack path; the
 `message_kind` discriminant is therefore an implementation detail retained for
 runtime routing.
 
+### Current syscall kinds
+
+| Kind | WIT function |
+|------|--------------|
+| 1 | `query` |
+| 2 | `command` |
+| 3 | `batch` |
+| 4 | `open-session` |
+| 5 | `close-session` |
+| 6 | `get` |
+| 7 | `put` |
+| 8 | `delete` |
+| 9 | `range` |
+| 10 | `fs-open` |
+| 11 | `fs-close` |
+| 12 | `fs-read` |
+| 13 | `fs-write` |
+| 14 | `fs-pread` |
+| 15 | `fs-pwrite` |
+| 16 | `fs-lseek` |
+| 17 | `fs-fstat` |
+| 18 | `fs-stat` |
+| 19 | `fs-fsync` |
+| 20 | `fs-readdir` |
+| 21 | `relation-get` |
+| 22 | `relation-update` |
+| 23 | `relation-insert` |
+
 ## Body encoding
 
 The body is a single MessagePack value. The exact byte sequence is controlled by
@@ -274,7 +302,7 @@ For reference, the field numbers and payload shapes are (record keys are the
 
 - **`UniOid`** — `{1: h: u64, 2: l: u64}`.
 - **`UniSqlStmt`** — `{1: sql_string: string}`.
-- **`UniSqlParam`** — `{1: params: list<UniDataValue>}`.
+- **`UniSqlParam`** — `{1: params: list<UniDataValue>, 2: param_names: option<list<string>>}`.
 - **`UniTupleRow`** — `{1: fields: list<UniDataValue>}`.
 - **`UniFieldAttr`** — `{1: attr_name: string, 2: attr_value: string}`.
 - **`UniRecordField`** — `{1: field_name: string, 2: field_type: UniDataType, 3: field_attrs: list<UniFieldAttr>}`.
@@ -282,8 +310,8 @@ For reference, the field numbers and payload shapes are (record keys are the
 - **`UniResultType`** — `{1: ok: option<UniDataType>, 2: err: option<UniDataType>}`.
 - **`UniResultSet`** — `{1: eof: bool, 2: row_set: list<UniTupleRow>, 3: cursor: list<u8>}`.
 - **`UniError`** — `{1: err_code: u32, 2: err_msg: string, 3: err_src: string, 4: err_loc: string, 5: err_details: list<u8>}`.
-- **`UniQueryArgv`** — `{1: oid: UniOid, 2: query: UniSqlStmt, 3: param_list: UniSqlParam}`.
-- **`UniCommandArgv`** — `{1: oid: UniOid, 2: command: UniSqlStmt, 3: param_list: UniSqlParam}`.
+- **`UniQueryArgv`** — `{1: oid: UniOid, 2: query: UniSqlStmt, 3: param_list: UniSqlParam, 4: param_desc: option<UniRecordType>}`.
+- **`UniCommandArgv`** — `{1: oid: UniOid, 2: command: UniSqlStmt, 3: param_list: UniSqlParam, 4: param_desc: option<UniRecordType>}`.
 - **`UniQueryResult`** — `{1: tuple_desc: UniRecordType, 2: result_set: UniResultSet}`.
 - **`UniCommandResult`** — `{1: affected_rows: u64}`.
 - **`UniCommandReturn`** — variant: `ok(UniCommandResult)` or `err(UniError)`.

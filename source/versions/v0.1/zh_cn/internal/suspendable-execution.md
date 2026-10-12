@@ -1,42 +1,26 @@
 # 可挂起的过程执行
 
-MuduDB 以 WebAssembly 组件的形式执行存储过程。过程在遇到异步 I/O 时如何挂起、以及一个 OS 线程上可以同时有多少个过程在飞，取决于包构建时所用的组件 world。本页描述两种模型及其约束。
+MuduDB 托管导入同步或异步宿主调用的组件。异步 world 使用 Wasmtime `call_async`：guest 等待异步宿主调用时可以挂起并返回 `Poll::Pending`，执行器可继续推进其他调用。一个 Store 同时最多执行一次调用。
 
-## 同步 world（旧模型）：每调用一线程，阻塞执行
+## 每次调用使用全新状态
 
-针对同步 world（`wit/api.wit`）构建的包调用**同步** host 函数。该路径上没有挂起机制：`call` 为每次调用启动一个专用 OS 线程，线程内运行一个 current-thread 运行时，租出池化实例后用 `block_on` 把调用执行到完成，调用方线程 join 等待结果。
+历史类型名 `ProcedureInstancePool` 现在表示实例工厂。每次 lease 都创建新的 `Store`、WASI 上下文和组件实例；仅复用已编译的组件代码和预实例化元数据。guest 线性内存、全局变量和句柄不会跨调用保留。调用方的 worker 上下文与调用预算在实例化前绑定。
 
-因此同步路径上的并发只能来自在多个 OS 线程上同时运行调用——每个在飞调用占一个阻塞线程。单个线程内部没有交错：遇到异步 I/O 的 host 调用只是阻塞该线程直到 I/O 完成。
+Store 执行内存/表大小限制、fuel 和 epoch deadline；异步 Store 还按 fuel 间隔协作让出执行权。准入受全局/应用并发和内存预算限制，见[配置参考](../administration/configuration.md)。
 
-## 异步 world（当前默认）：wasmtime 管理的 guest 纤程
+## 同步调用
 
-针对异步 world（`wit/async-api.wit`，当前所有 `.mpk` fixture）构建的包导入 **async-lowered** 的 host 函数。引擎配置 `wasm_component_model_async` + `more_async_builtins`（`enable_async`），调用走 `call_async`：
+同步 guest 使用有界执行器：四个普通 worker 线程和有界任务队列。服务端通过 `call_on_executor` 异步等待结果，不会为每个请求无限制创建线程，也不会在数据库执行器上阻塞 join。若兼容路径调用导入异步接口的组件，则在执行器线程上的 current-thread runtime 中驱动它。
 
-- wasmtime 运行每个 `Store` 的组件事件循环。当 guest await 一个异步 host 调用且没有其他可推进的工作时，`call_async` future 向嵌入方返回 `Poll::Pending`，被挂起的调用状态从线程上 detach——线程随即可以运行其他 store。
-- **N 个组件实例可以在一个 OS 线程上挂起于 host 调用之中**，真正交错执行。并发单位是租出的 store：每个 worker 线程上在飞的过程数等于租给它们的池化实例数。
-- guest 源码在任何 guest 语言中都保持**同步写法**——过程代码里不需要 async/await。挂起机制完全位于异步 world 生成的 canonical-ABI 胶水代码中；原生驱动就是一个普通的 async task。
-- server 模式下这已是既有的执行形态：`WorkerTaskRegistry` 上的每个连接任务驱动自己的 `call_async` future，因此并发连接在 io_uring/tokio worker 上各自独立地挂起与恢复。
+## 事务与取消生命周期
 
-## host 侧交错安全性
+运行时建立任务/会话上下文，按需启动事务，执行组件，清理宿主资源，然后提交或回滚。提交前发生失败或预算耗尽会回滚该调用拥有的事务。一旦跨过提交边界，取消就不再改变结果。提交失败可能意味着结果未知，不能当作已确认回滚。
 
-并发调用共享 host 侧设施；保证彼此隔离的不变量：
+并发调用需要独立任务上下文。本地适配器和跨 worker 写入另有事务限制，见 [Mudu 过程](../programming/mudu_procedure.md)。
 
-- **worker_local 重绑定。** 池化实例在 worker 之间共享。`LeasedInstance::set_worker_local` 在*每次*调用前把 store 的 WASI 上下文重新绑定到调用方的 worker，因此 host 调用总是看到它所属调用的 worker。
-- **事务。** 调用路径为每次调用开启独立事务（`pre_invoke`），作用于该调用自己的 session 上下文；调用返回时提交或回滚的正是该上下文——失败的调用只回滚自己的事务。
-- **实例池排他性。** 租约把实例从池中移出：每个 store 最多**一个在飞调用**，由所有权机制保证。调用 trap 的实例会被丢弃而不是归还池中；干净返回（包括结果字节中编码的 domain error）的实例可以复用。
+## 实现依据
 
-## 要求与限制
-
-- 每个 `Store` 一个在飞调用（wasmtime 规则；由池租约强制）。
-- host 上下文数据必须是 `Send`（`call_async` future 可能在线程间迁移）。
-- 同一 app 上的并发调用必须使用**不同的 task session**：SQL session 注册表和每 task 连接以 task id 为键，共享同一 task id 的两个调用会混用同一个 session 上下文。
-- 异步 world 的组件需要异步引擎配置（`enable_async`）并走 `call_async` 路径；同步 world 的组件走每调用一线程的 `call` 路径。
-- 池化实例在调用之间保留 guest 线性内存：过程必须是参数的纯函数，不得依赖全新实例的状态。
-
-## 验证
-
-该模型由 `runtime_wasm` 中的测试固定：
-
-- `service/concurrent_wasm_suspension_test.rs`——两个实例挂起于 host 调用之中，在一个 OS 线程上交错执行（有序的 host 调用日志），并有顺序执行的对照运行产生完全相同的结果。
-- `service/procedure_instance_pool.rs` 测试——池排他性、每个租约各自的 worker-local 绑定、归还实例的复用与重绑定。
-- `service/app_inst_impl_test.rs` 测试——并发调用各自独立提交；失败的调用只回滚自己的事务。
+- `crates/db-kernel/runtime_wasm/src/service/procedure_instance_pool.rs`
+- `crates/db-kernel/runtime_wasm/src/service/procedure_invoke_component.rs`
+- `crates/db-kernel/runtime_wasm/src/service/invocation_executor.rs`
+- `crates/db-kernel/runtime_wasm/src/service/app_inst_impl.rs`

@@ -43,4 +43,4 @@ delete: func(oid: uni-oid, key: list<u8>) -> result<_, uni-error>
 
 ## Notes
 
-- `delete` is the KV counterpart of `read` / `write` / `range-scan`; it is unrelated to SQL `DELETE` statements executed through `command`.
+- `delete` is the KV counterpart of `get` / `put` / `range`; it is unrelated to SQL `DELETE` statements executed through `command`.

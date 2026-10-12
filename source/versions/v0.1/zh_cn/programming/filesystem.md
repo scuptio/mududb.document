@@ -87,3 +87,5 @@ fs 家族共 11 个系统调用，在 `sys_interface::sync_api` 与 `sys_interfa
 ## 独立适配器
 
 在 SQLite / PostgreSQL / MySQL 的独立（standalone）适配器路径上，fs 系统调用通过本地文件系统模拟，内容位于 `{db_path}.fs/`，采用相同的扁平布局，但固定为单一 generation（恒为 `1`，state 报告为 SEALED），且不支持 MVCC、DDL 或 catalog。独立 `mudud` 驱动路径返回 `NotImplemented`：fs 帧尚未接入 mudud 线协议。
+
+文件对象内容不进入 WAL。当前 worker 快照复制关系 `.dat` 文件和 KV 状态，不包含 `fs/` 下的 generation 文件；逻辑导出也只包含 schema 和表 CSV，不携带对象内容文件。因此仅靠这些机制不能完整复制或恢复文件对象内容。使用 FS 列时，需单独保存并验证对象内容。

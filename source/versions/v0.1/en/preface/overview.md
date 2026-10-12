@@ -18,6 +18,9 @@ This structure reduces cross-process and cross-network traffic on critical paths
 | **Runtime** | The WebAssembly component host that runs user procedures under kernel control. |
 | **Partition** | A logical shard of data mapped to a worker by a partition rule and placement metadata. |
 | **Worker** | A per-core execution thread that owns a subset of partitions and local state. |
+| **Primary / Replica** | In streaming replication, the primary accepts writes and pushes WAL segments; replicas are read-only and replay them. |
+| **Raft** | Consensus-based fault tolerance: a group of nodes elects a leader, commits through majority, and self-heals on failure. |
+| **Epoch** | A monotonically increasing generation number used to fence stale primaries during manual failover. |
 
 ## Where to go next
 

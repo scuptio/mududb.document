@@ -32,7 +32,7 @@ close(session_id: OID) -> ()
 
 ## Errors
 
-- `InvalidSession`: the provided `OID` does not identify an open session.
+- `EntityNotFound`: the provided `OID` does not identify an open session.
 
 ## Transaction semantics
 
@@ -50,4 +50,4 @@ mudu_close(oid)?;
 ## Notes
 
 - Procedures must close sessions they explicitly open to avoid resource leaks.
-- Do not use a closed `OID` after `close`; doing so yields `InvalidSession`.
+- Do not use a closed `OID` after `close`; doing so yields `EntityNotFound`.
