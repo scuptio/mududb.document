@@ -12,7 +12,7 @@ MuduDB 围绕数据本地业务过程执行而构建。
 |------|------|
 | **Mudu 过程（MP）** | 在 MuduDB 引擎内部、靠近数据运行的用户定义函数。 |
 | **OID** | 对象标识符；作为每个过程第一个参数传入的会话/事务句柄。 |
-| **MPK** | Mudu 包；包含 DDL、描述符与编译后 WebAssembly 组件的 ZIP 归档。 |
+| **MPK** | MuduDB 包；包含 DDL、描述符与编译后 WebAssembly 组件的 ZIP 归档。 |
 | **App / Module / Procedure** | 安装后的包层次结构：应用包含模块，模块包含过程。 |
 | **Kernel（内核）** | 数据库正确性基础：存储、事务、查询执行、调度。 |
 | **Runtime（运行时）** | 在内核控制下运行用户过程的 WebAssembly 组件宿主。 |

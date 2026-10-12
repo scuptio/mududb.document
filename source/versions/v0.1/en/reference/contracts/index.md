@@ -6,14 +6,14 @@ This directory contains the formal, versioned contracts for MuduDB's persistent 
 
 | Contract | Version | Status | Implementation |
 |----------|---------|--------|----------------|
-| Page Header | [v1](page_header_v1.md) | Stable | `mudu_kernel/src/storage/page/format/latest.rs` |
+| Page Header | [v1](page_header_v1.md) | Stable | `storage/src/page/format/latest.rs` |
 | Tuple Binary Format | [v1](tuple_binary_v1.md) | Stable | `mudu_contract/src/tuple/tuple_binary.rs` |
-| Log Frame (WAL/XL/PL) | [v1](log_frame_v1.md) | Stable | `mudu_kernel/src/wal/format/latest.rs` |
+| Log Frame (WAL/XL/PL) | [v1](log_frame_v1.md) | Stable | `wal/src/format/latest.rs` |
 | TCP Protocol Frame | [v1](protocol_frame_v1.md) | Stable | `mudu_contract/src/protocol/format/latest.rs` |
-| MPK Package Manifest | [v1](mpk_manifest_v1.md) | Stable | `mudu_runtime/src/service/app_package.rs` |
-| Server Configuration | [v1](mudud_cfg_v1.md) | Stable | `mudu_runtime/src/backend/mudud_cfg.rs` |
-| File Layout | [v1](file_layout_v1.md) | Stable | `mudu_kernel/src/storage/time_series/time_series_file.rs` |
-| Guest→Host Syscall Payload | [v1](syscall_payload_v1.md) | Draft | `mudu/src/compat/mod.rs` (registry; codec pending Phase 2) |
+| MPK Package Manifest | [v1](mpk_manifest_v1.md) | Stable | `runtime_wasm/src/service/app_package.rs` |
+| Server Configuration | [v1](mudud_cfg_v1.md) | Stable | `mudu_runtime/src/backend/mudud_cfg/mod.rs` |
+| File Layout | [v1](file_layout_v1.md) | Stable | `storage/src/time_series/time_series_file.rs` |
+| Guest→Host Syscall Payload | [v1](syscall_payload_v1.md) | Stable | `mudu_binding/src/codec/syscall_payload/` (host router; registry in `mudu/src/compat/mod.rs`) |
 
 ## Adding or changing a contract
 

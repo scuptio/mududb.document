@@ -10,7 +10,7 @@ WHERE predicate [AND predicate ...];
 ## 规则
 
 - `WHERE` 是**必需的**。不带 `WHERE` 子句的 `DELETE` 将被解析器拒绝。
-- 谓词仅通过 `AND` 组合。
+- 谓词仅通过 `AND` 组合，且必须是对完整主键的等值谓词（每个主键列一个等值条件）；不支持非主键列谓词和范围谓词。
 
 ## 示例
 
@@ -25,5 +25,5 @@ WHERE no_w_id = 1 AND no_d_id = 2 AND no_o_id = 100;
 
 ```sql
 DELETE FROM history
-WHERE h_c_id = ? AND h_c_d_id = ? AND h_c_w_id = ?;
+WHERE h_id = ?;
 ```

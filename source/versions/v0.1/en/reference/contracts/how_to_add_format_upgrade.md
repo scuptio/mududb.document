@@ -53,8 +53,8 @@ Migrate handlers live in the crate that owns the format's encode/decode code, ne
 
 | FormatKind          | Migrate directory                                       |
 |---------------------|---------------------------------------------------------|
-| `Page`              | `mudu_kernel/src/storage/page/migrate/`                 |
-| `LogFrame`          | `mudu_kernel/src/wal/migrate/`                          |
+| `Page`              | `storage/src/page/migrate/`                             |
+| `LogFrame`          | `wal/src/migrate/`                                      |
 | `ProtocolFrame`     | `mudu_contract/src/protocol/migrate/`                   |
 | `TupleBinary`       | `mudu_contract/src/tuple/migrate/`                      |
 | `FileLayout`        | No independent migrate; compatibility relies on page/log frame migrations |
@@ -63,7 +63,7 @@ Migrate handlers live in the crate that owns the format's encode/decode code, ne
 
 The `FormatKind::Page` migrate handler must operate on the **complete page binary** at the configured page size (default 4 KiB), not just the 128-byte page header.  When the page format evolves, the slot array, tailer, and record payloads may also change.
 
-Add a `v{n}_to_v{n+1}` function in the corresponding `migrate/mod.rs` that returns a [`MigrateHandler`]:
+Add a `v{n}_to_v{n+1}` function in the corresponding `migrate/mod.rs` that returns a `MigrateHandler`:
 
 ```rust
 use mudu_compat_migrate::handler::{MigrateHandler, MigrateOption};
@@ -106,7 +106,7 @@ Constraints:
 
 ## 5. Register with the CompatibilityRouter
 
-The global [`CompatibilityRouter`] is installed by `mudu_kernel::compat::install_compatibility_router()`. When adding a format upgrade, update that function:
+The global `CompatibilityRouter` is installed by `mudu_kernel::compat::install_compatibility_router()`. When adding a format upgrade, update that function:
 
 ```rust
 // mudu_kernel/src/compat.rs
@@ -127,13 +127,13 @@ Each format has a static current-version constant in `mudu/src/compat/mod.rs`, e
 pub const PAGE_CURRENT_VERSION: u32 = 1;
 ```
 
-When bumping a format, update the corresponding constant to `n+1`; [`CompatibilityMatrix`] will follow automatically:
+When bumping a format, update the corresponding constant to `n+1`; `CompatibilityMatrix` will follow automatically:
 
 ```rust
 pub const PAGE_CURRENT_VERSION: u32 = 2;
 ```
 
-[`CompatibilityMatrix::supported_versions`] and [`CompatibilityMatrix::latest_version`] reference these constants, so you do not need to edit every match arm by hand.
+`CompatibilityMatrix::supported_versions` and `CompatibilityMatrix::latest_version` reference these constants, so you do not need to edit every match arm by hand.
 
 ## 7. Add Tests
 

@@ -18,20 +18,17 @@ The following table summarises the SQL type names recognised by the parser and t
 | `INT` | `I32` | 32-bit signed integer |
 | `BIGINT` | `I64` | 64-bit signed integer |
 | `HUGEINT` | `I128` | 128-bit signed integer |
-| `FLOAT`, `REAL` | `F32` | 32-bit IEEE-754 float |
-| `DOUBLE` | `F64` | 64-bit IEEE-754 float |
-| `NUMERIC(p,s)` | `Numeric` | Arbitrary-precision decimal |
+| `FLOAT` | `F32` | 32-bit IEEE-754 float |
+| `DOUBLE`, `REAL` | `F64` | 64-bit IEEE-754 float |
+| `NUMERIC(p,s)` | `Numeric` | Fixed-point decimal (precision up to 38 digits) |
 | `DECIMAL(p,s)` | `Numeric` | Alias for `NUMERIC` |
-| `CHAR(n)` | `String` | Fixed-length string (padded) |
+| `CHAR(n)` | `String` | String with declared length (no padding, not enforced) |
 | `VARCHAR(n)` | `String` | Variable-length string |
 | `TEXT` | `String` | Unbounded text |
 | `DATE` | `Date` | Calendar date |
 | `TIME(p)` | `Time` | Time of day with optional fractional-second precision |
 | `TIMESTAMP(p)` | `Timestamp` | Date+time without time zone |
 | `TIMESTAMPTZ(p)` | `TimestampTz` | Date+time with time zone |
-| `ARRAY` | `Array` | Ordered collection of elements |
-| `RECORD` | `Record` | Structured object with named fields |
-| `BINARY` | `Binary` | Raw byte sequence |
 
 ```{toctree}
 :maxdepth: 1
@@ -61,7 +58,6 @@ CREATE TABLE example (
 The following types are recognised by the grammar but not yet implemented in the SQL parser:
 
 - `BOOLEAN`
-- `INTEGER` (use `INT` instead)
 - `SMALLINT`
 - `TINYINT`
 

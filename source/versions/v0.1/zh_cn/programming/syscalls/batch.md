@@ -16,7 +16,7 @@ pub async fn mudu_batch(oid: OID, sql: &dyn SQLStmt, params: &dyn SQLParams) -> 
 }
 ```
 
-`mudu_batch` 使用与 `mudu_command` 相同的参数与返回约定。在 `mudud` 中，参数占位符目前不受支持，会返回 `NotImplemented`。
+`mudu_batch` 使用与 `mudu_command` 相同的参数与返回约定。`batch` 执行原始多语句 SQL 文本，不支持 SQL 参数：参数列表必须为空，否则运行时返回 `NotImplemented`。
 
 ## 概念签名
 

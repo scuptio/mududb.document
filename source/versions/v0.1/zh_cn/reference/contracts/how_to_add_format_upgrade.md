@@ -53,8 +53,8 @@ migrate handler 放在**拥有该格式 encode/decode 代码的 crate** 中，�
 
 | FormatKind          | migrate 目录                                            |
 |---------------------|---------------------------------------------------------|
-| `Page`              | `mudu_kernel/src/storage/page/migrate/`                 |
-| `LogFrame`          | `mudu_kernel/src/wal/migrate/`                          |
+| `Page`              | `storage/src/page/migrate/`                             |
+| `LogFrame`          | `wal/src/migrate/`                                      |
 | `ProtocolFrame`     | `mudu_contract/src/protocol/migrate/`                   |
 | `TupleBinary`       | `mudu_contract/src/tuple/migrate/`                      |
 | `FileLayout`        | 不需要独立 migrate，兼容性由 page/log frame 迁移保证    |
@@ -63,7 +63,7 @@ migrate handler 放在**拥有该格式 encode/decode 代码的 crate** 中，�
 
 `FormatKind::Page` 的 migrate handler 输入/输出必须是**完整的 page binary**（按当前配置的页面大小，默认 4 KiB），而不是仅 128 字节的 page header。页格式升级时，slot 数组、tailer、记录数据都可能变化。
 
-在对应的 `migrate/mod.rs` 中新增 `v{n}_to_v{n+1}` 函数，返回 [`MigrateHandler`]：
+在对应的 `migrate/mod.rs` 中新增 `v{n}_to_v{n+1}` 函数，返回 `MigrateHandler`：
 
 ```rust
 use mudu_compat_migrate::handler::{MigrateHandler, MigrateOption};
@@ -106,7 +106,7 @@ pub fn v1_to_v2() -> MigrateHandler {
 
 ## 5. 注册到 CompatibilityRouter
 
-全局 [`CompatibilityRouter`] 由 `mudu_kernel::compat::install_compatibility_router()` 安装。当新增格式升级时，需要更新该函数：
+全局 `CompatibilityRouter` 由 `mudu_kernel::compat::install_compatibility_router()` 安装。当新增格式升级时，需要更新该函数：
 
 ```rust
 // mudu_kernel/src/compat.rs
@@ -127,13 +127,13 @@ router.set_supported_window(FormatKind::Page, 1, 2);
 pub const PAGE_CURRENT_VERSION: u32 = 1;
 ```
 
-升级时先把对应常量改为 `n+1`，[`CompatibilityMatrix`] 会自动跟随：
+升级时先把对应常量改为 `n+1`，`CompatibilityMatrix` 会自动跟随：
 
 ```rust
 pub const PAGE_CURRENT_VERSION: u32 = 2;
 ```
 
-[`CompatibilityMatrix::supported_versions`] 和 [`CompatibilityMatrix::latest_version`] 均引用这些常量，无需再手动修改每个 match 分支。
+`CompatibilityMatrix::supported_versions` 和 `CompatibilityMatrix::latest_version` 均引用这些常量，无需再手动修改每个 match 分支。
 
 ## 7. 添加测试
 

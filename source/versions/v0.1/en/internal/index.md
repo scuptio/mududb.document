@@ -8,7 +8,9 @@ Technical architecture and implementation details for MuduDB internals: kernel d
 kernel
 adapter
 procedure-runtime
+suspendable-execution
 wasm
 partitioning
 per_core_worker
+replication
 ```

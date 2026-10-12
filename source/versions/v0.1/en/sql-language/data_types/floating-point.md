@@ -2,7 +2,7 @@
 
 ```sql
 FLOAT      -- 32-bit IEEE-754
-REAL       -- alias for FLOAT
+REAL       -- alias for DOUBLE
 DOUBLE     -- 64-bit IEEE-754
 ```
 

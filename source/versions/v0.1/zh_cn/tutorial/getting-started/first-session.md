@@ -2,7 +2,10 @@
 
 ## 启动服务器
 
+`mudud` 需要配置文件，且不会自动创建；如果尚不存在，请先生成默认的 `./mudud.cfg`：
+
 ```bash
+mudud init-cfg
 ulimit -n 65535
 mudud
 ```

@@ -1,8 +1,8 @@
 # 字符串类型
 
 ```sql
-CHAR(n)      -- fixed-length, space-padded
-VARCHAR(n)   -- variable-length up to n characters
+CHAR(n)      -- string with declared length n (not padded, not enforced)
+VARCHAR(n)   -- string with declared length n (not enforced)
 TEXT         -- unbounded text
 ```
 

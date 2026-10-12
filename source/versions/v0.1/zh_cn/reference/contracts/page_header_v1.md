@@ -93,6 +93,6 @@ Page tailer 位于 page 末尾，共 12 字节：
 ## 参考
 
 - Tuple binary format：[tuple_binary_v1.md](tuple_binary_v1.md)
-- 实现：`mudu_kernel/src/storage/page/format/latest.rs`
-- Tailer：`mudu_kernel/src/storage/page/page_tailer.rs`
-- Slot 布局：`mudu_kernel/src/storage/page/record_slot.rs`
+- 实现：`storage/src/page/format/latest.rs`
+- Tailer：`storage/src/page/page_tailer.rs`
+- Slot 布局：`storage/src/page/record_slot.rs`

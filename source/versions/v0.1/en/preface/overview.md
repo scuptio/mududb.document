@@ -12,7 +12,7 @@ This structure reduces cross-process and cross-network traffic on critical paths
 |------|---------|
 | **Mudu Procedure (MP)** | A user-defined function that runs inside the MuduDB engine, close to the data. |
 | **OID** | Object Identifier; the session/transaction handle passed as the first argument to every procedure. |
-| **MPK** | Mudu Package; a ZIP archive containing DDL, descriptors, and compiled WebAssembly components. |
+| **MPK** | MuduDB package; a ZIP archive containing DDL, descriptors, and compiled WebAssembly components. |
 | **App / Module / Procedure** | Installed package hierarchy: an app contains modules, modules contain procedures. |
 | **Kernel** | The database correctness foundation: storage, transactions, query execution, scheduling. |
 | **Runtime** | The WebAssembly component host that runs user procedures under kernel control. |

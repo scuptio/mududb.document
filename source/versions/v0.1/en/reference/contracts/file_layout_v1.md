@@ -18,7 +18,7 @@ A MuduDB deployment consists of:
 - One or more **time-series files** storing time-series data.
 - **WAL chunk files** (`*.xl`) storing write-ahead log frames.
 - An optional **MPK package** (`*.mpk`) for distribution.
-- A **server configuration file** (`mududb.toml`).
+- A **server configuration file** (`mudud.cfg`).
 
 ## Relation file layout
 
@@ -147,6 +147,6 @@ Version `1` may be deprecated only after:
 - MPK manifest: [mpk_manifest_v1.md](mpk_manifest_v1.md)
 - Server config: [mudud_cfg_v1.md](mudud_cfg_v1.md)
 - Implementation:
-  - `mudu_kernel/src/storage/time_series/time_series_file.rs`
-  - `mudu_kernel/src/storage/relation/relation.rs`
-  - `mudu_kernel/src/wal/worker_wal_backend/layout.rs`
+  - `storage/src/time_series/time_series_file.rs`
+  - `storage/src/relation/relation/mod.rs`
+  - `wal/src/worker_wal_backend/layout.rs`

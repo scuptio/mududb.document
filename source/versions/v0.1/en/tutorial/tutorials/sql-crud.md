@@ -12,7 +12,7 @@ CREATE TABLE accounts (
 INSERT INTO accounts (id, owner, balance) VALUES (1, 'Alice', 5000);
 INSERT INTO accounts (id, owner, balance) VALUES (2, 'Bob', 1200);
 
-SELECT id, owner, balance FROM accounts ORDER BY id;
+SELECT id, owner, balance FROM accounts;
 
 UPDATE accounts SET balance = balance + 300 WHERE id = 2;
 DELETE FROM accounts WHERE id = 1;

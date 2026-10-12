@@ -13,7 +13,7 @@ first-session
 
 ````{grid} 1 1 2 2
 ```{grid-item-card} 发布版安装
-使用 `mudup install` 进行服务器部署、日常使用以及快速验证。
+使用 `mudup install`（计划中，尚不可用）进行服务器部署、日常使用以及快速验证。
 ```
 
 ```{grid-item-card} 源码构建

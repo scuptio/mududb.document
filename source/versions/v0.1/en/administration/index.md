@@ -10,4 +10,5 @@ server
 configuration
 packages
 toolchain
+backup
 ```

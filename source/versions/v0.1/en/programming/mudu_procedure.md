@@ -40,7 +40,7 @@ Both converge into a single WASI-based execution flow where procedures call sysc
 
 ## 3. WebAssembly / WASI compilation and runtime
 
-Mudu compiles procedures to WebAssembly (WASI) modules and executes them inside a sandboxed runtime.
+Mudu compiles procedures to WebAssembly (WASI) components and executes them inside a sandboxed runtime.
 
 Why WASI?
 
@@ -50,24 +50,105 @@ Why WASI?
 
 Typical toolchain flow:
 
-1. Author procedure in a supported language (currently Rust examples exist).
-2. Build/compile to a WASI module (wasm-ld / rust + wasm32-wasi target).
+1. Author procedure in a supported language (this guide uses the Rust facade).
+2. Build/compile to a WASM component (wasm-ld / rust + wasm32-wasip2 target).
 3. Optionally run through mudu-transpiler to apply color-bind transformations (see below).
 4. Deploy the module (put the mpk/package into mpk_path) and register it with the kernel.
 5. Invoke interactively or as stored procedure; the kernel handles syscalls, transactions, and routing.
 
 The runtime exposes a compact syscall set (open session, get/put/range/query/command/batch, etc.). Procedures use these syscalls to interact with database state; all network and storage access is mediated by the kernel.
 
-## 4. Multi-language support
+## 4. Procedure specification
 
-Unlike many traditional stored-procedure environments that bind to an embedded language (SQL/PLSQL/PLpgSQL), Mudu Procedure plans to support multiple high-level languages by targeting WASI.
+A Mudu Procedure is a function marked with the `/**mudu-proc**/` marker, which tells the transpiler to expose the following function as a procedure:
 
-- Current supported implementation examples: Rust.
-- Future: other languages that can emit WASI modules (C/C++, Zig, AssemblyScript, Go (wasi support pending), and more).
+```text
+/**mudu-proc**/
+fn {procedure_name}(
+    oid: OID,
+    {argument_list...}
+) -> RS<{return_value_type}>
+```
+
+- **Procedure name** — a valid Rust function name.
+- **`oid`** — the current system session ID passed into the procedure.
+- **Arguments** — each argument must be representable by Mudu's datum / tuple conversion system. Commonly used forms include scalars such as `i32`, `i64`, `String`, `f32`, and `f64`, as well as container forms such as `Vec<String>`; the exact supported surface is defined by the `mudu_type` conversion and the transpiler rather than a fixed whitelist.
+- **Return value** — must be representable by the same conversion system; current implementations support scalar values, tuple return values, and `Vec<T>` style result containers.
+
+The result alias `RS` used by procedure code is defined as:
+
+```rust
+use mudu::error::err::MError;
+pub type RS<X> = Result<X, MError>;
+```
+
+Inside a procedure, code interacts with the database through the [syscalls](../programming/syscalls.md): SQL syscalls (`mudu_query` / `mudu_command` / `mudu_batch`) and key/value syscalls (`mudu_get` / `mudu_put` / `mudu_range`).
+
+## 5. Transactions
+
+Mudu Procedures support two transaction execution modes.
+
+**Automatic mode (current).** Each procedure invocation runs as an independent transaction:
+
+- the transaction commits automatically when the procedure returns `Ok`;
+- it rolls back automatically when the procedure returns `Err`.
+
+**Manual mode (planned).** Passing a shared session `oid` across multiple procedures for explicit transaction control is a planned capability. The current procedure API exposes no `commit` / `rollback`; the pseudocode below is illustrative only:
+
+```text
+procedure1(oid);
+procedure2(oid);
+commit(oid); // explicit commit; or rollback(oid) for explicit rollback
+```
+
+## 6. Entity mapping
+
+`mudu_query` automatically performs R2O (relation-to-object) mapping: it returns an `EntitySet<R>` whose rows are decoded into the entity type `R`. `R` must implement the `Entity` trait:
+
+```rust
+pub trait Entity: Datum {
+    fn tuple_desc() -> &'static TupleFieldDesc;
+
+    fn table_name() -> &'static str;
+
+    fn from_tuple(row: &TupleField) -> RS<Self>;
+
+    fn from_tuple_value(row: &TupleValue) -> RS<Self>;
+
+    fn to_tuple(&self) -> RS<TupleField>;
+
+    fn to_tuple_value(&self) -> RS<TupleValue>;
+}
+```
+
+Entity implementations are normally generated, not hand-written: for each table in `sql/ddl.sql`, `mgen entity` generates a Rust module containing:
+
+- the row struct (e.g. `Wallets`) implementing `Entity`, plus `TABLE_NAME` and `columns::*` name constants;
+- pre-built SQL text constants `SQL_GET_BY_PK`, `SQL_INSERT`, and `SQL_DELETE_BY_PK` for tables with a primary key, and `insert_params()` returning the typed bind tuple for `SQL_INSERT`;
+- a partial-update changeset `<Table>Change` holding one `FieldChange<T>` per non-key column: `Unchanged` (the default) leaves the column out of the update, `Set(v)` sets it, and for a nullable column `Set(None)` writes a SQL `NULL`.
+
+`update_by_pk(...)` builds the `UPDATE ... SET ... WHERE <pk> = ?` statement and its bind parameters, and returns `None` when no column is marked:
+
+```rust
+let change = WalletsChange {
+    balance: FieldChange::Set(Some(200)),
+    ..WalletsChange::default()
+};
+if let Some((sql, params)) = change.update_by_pk(user_id) {
+    mudu_command(oid, sql_stmt!(&sql), sql_params!(&params))?;
+}
+```
+
+## 7. Multi-language support
+
+Unlike many traditional stored-procedure environments that bind to an embedded language (SQL/PLSQL/PLpgSQL), Mudu Procedure supports multiple high-level languages by compiling them to WASM components.
+
+- Currently supported guest languages: Rust, AssemblyScript, C#, Python, C, and Go. This guide uses the Rust facade, the reference implementation of the procedure API.
+- Future: other languages that can emit WASM components (Zig and more).
 
 This opens the door to leveraging modern language ecosystems, package managers, and developer tools while keeping execution safe and portable.
 
-## 5. Color-bind async/await: language ergonomics and runtime
+## 8. Color-bind async/await: language ergonomics and runtime
 
 Mudu adopts a "color-bind" model where asynchrony is a runtime feature rather than a mandatory language construct:
 
@@ -83,7 +164,7 @@ Benefits:
 
 The transpiler rewrites syscall calls into async syscall invocations under the hood so that the runtime can yield when waiting for I/O or remote RPCs.
 
-## 6. Other considerations
+## 9. Other considerations
 
 - Debugging & testing: developer workflows include local WASI execution, unit tests, and interactive session debugging. The tooling aims to provide source-level debugging aids when possible.
 - Resource limits & quotas: the kernel enforces CPU, memory, and syscall quotas per procedure to maintain isolation.
@@ -93,6 +174,7 @@ The transpiler rewrites syscall calls into async syscall invocations under the h
 ## References & examples
 
 - See the [system call reference](../programming/syscalls.md) for `mudu_open`, `mudu_get`, `mudu_put`, `mudu_query`, `mudu_command`, and more.
+- See [Filesystem Object Types](../programming/filesystem.md) for fs object DDL and the `mudu_fs_*` syscalls.
 - See [WebAssembly Integration](../internal/wasm.md) for the component model and WASI sandbox.
 - See [Application Packages](../administration/packages.md) for how to build and install an `.mpk` package.
 - See architecture diagrams in the docs (`/_static/procedural_tx.png`) for visual flow between client, kernel, and worker.

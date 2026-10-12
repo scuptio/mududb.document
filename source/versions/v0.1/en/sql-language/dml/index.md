@@ -8,6 +8,13 @@ All DML statements execute inside the current transaction context. If no explici
 
 Prepared-statement placeholders (`?`) can be used in place of literal values. The kernel binds parameters at execution time.
 
+Besides `?` positional placeholders, a statement may use named parameters `:name` (a colon followed by `[A-Za-z_][A-Za-z0-9_]*`):
+
+- Named parameters are resolved by the server adapter before execution: the SQL is rewritten into positional form in occurrence order and values are matched by name — a repeated `:name` reuses its value at every occurrence.
+- Content inside string literals (`'...'`, `"..."`), `--` line comments, `/* */` block comments, and `::type` casts is never treated as a placeholder.
+- `?` and `:name` must not be mixed in one statement.
+- Every named parameter in the statement must have a corresponding value, and every supplied parameter name must be used by the statement; otherwise the statement fails before execution.
+
 ```{toctree}
 :maxdepth: 1
 

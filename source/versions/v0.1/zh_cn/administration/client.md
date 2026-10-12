@@ -45,6 +45,19 @@ mcli --addr 127.0.0.1:9527 --http-addr 127.0.0.1:8300 app-invoke \
   --json '{"from_user_id": 1001, "to_user_id": 1002, "amount": 1200}'
 ```
 
+## 独立适配器连接（MUDU_CONNECTION）
+
+通过独立适配器（`mudu_adapter`）运行过程的程序——而非通过 `mcli`——读取 `MUDU_CONNECTION` 环境变量来选择后端。该变量未设置时，适配器缺省使用 `sqlite:///tmp/mududb.db`。
+
+| Scheme | 后端 | 示例 |
+|--------|------|------|
+| `sqlite://<路径>` | SQLite 文件 | `sqlite:///tmp/mududb.db` |
+| `postgres://…`、`postgresql://…` | PostgreSQL | `postgres://postgres:postgres@127.0.0.1:5432/tpcc` |
+| `mysql://…` | MySQL | `mysql://root:root@127.0.0.1:3306/tpcc` |
+| `mudud://<地址>[/<应用>][?query]` | MuduDB 服务器 | `mudud://127.0.0.1:9527/ycsb?http_addr=127.0.0.1:8300` |
+
+`sqlite:` 前缀或裸路径同样按 SQLite 文件路径处理。`mudud://` 形式中应用名默认为 `default`，`http_addr` 查询参数默认为 `127.0.0.1:8300`；查询参数详见[适配器配置](../internal/adapter.md)。
+
 ## 输出
 
 - 在 TTY 会话中，查询结果默认以表格形式显示。

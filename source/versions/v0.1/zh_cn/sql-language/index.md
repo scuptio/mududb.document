@@ -10,3 +10,12 @@ dml/index
 query
 data_types/index
 ```
+
+## 兼容性与陷阱
+
+以下写法能被语法接受，但 v0.1 的引擎会静默忽略对应语义（既不报错也不生效）：
+
+- `CREATE TABLE IF NOT EXISTS` — `IF NOT EXISTS` 被忽略：表已存在时仍然报错。
+- 列级 `DEFAULT` 约束 — 被解析但被忽略，不会为列填入默认值。
+- 表级 `FOREIGN KEY ... REFERENCES` 约束 — 被解析但不强制执行。
+- `SELECT DISTINCT` — `DISTINCT` 被忽略，返回结果不去重。

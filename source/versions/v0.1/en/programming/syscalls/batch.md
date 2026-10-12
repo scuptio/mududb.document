@@ -16,7 +16,7 @@ pub async fn mudu_batch(oid: OID, sql: &dyn SQLStmt, params: &dyn SQLParams) -> 
 }
 ```
 
-`mudu_batch` uses the same argument and return contract as `mudu_command`. In `mudud`, parameter placeholders are currently not supported and return `NotImplemented`.
+`mudu_batch` uses the same argument and return contract as `mudu_command`. `batch` executes raw multi-statement SQL text and does not support SQL parameters: the parameter list must be empty, otherwise the runtime returns `NotImplemented`.
 
 ## Conceptual signature
 

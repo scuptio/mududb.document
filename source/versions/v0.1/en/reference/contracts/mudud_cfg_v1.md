@@ -32,7 +32,7 @@ If none of these files exist, the server returns a `NotFound` error. Use `mudud 
 | `pg_listen_port` | u16 | `5432` | PostgreSQL wire protocol port. |
 | `component_target` | string | `p2` | Wasm component ABI target. Allowed: `p2`, `p3`. |
 | `enable_async` | boolean | `true` | Enable the WASI component runtime. |
-| `server_mode` | string | `"IOUring"` | `"Legacy"`, `"IOUring"`, or `"Tokio"`. |
+| `server_mode` | string | `"Tokio"` | `"Legacy"`, `"IOUring"`, or `"Tokio"`. |
 | `tcp_listen_port` | u16 | `9527` | TCP framed protocol port. |
 | `tcp_multi_port` | boolean | `false` | One TCP listener per worker. |
 | `worker_threads` | usize | `0` | Worker thread count. `0` means use available parallelism. |
@@ -62,5 +62,5 @@ If none of these files exist, the server returns a `NotFound` error. Use `mudud 
 
 ## References
 
-- Parser: `mudu_runtime/src/backend/mudud_cfg.rs`
-- Example config: `doc/cfg/mudud.cfg`
+- Parser: `mudu_runtime/src/backend/mudud_cfg/mod.rs`
+- Example config: `mudud init-cfg`

@@ -74,7 +74,7 @@ Version `1` may be deprecated only after:
 
 ## References
 
-- Package loader: `mudu_runtime/src/service/app_package.rs`
+- Package loader: `runtime_wasm/src/service/app_package.rs`
 - Packager: `mpm_build/src/main.rs`
-- File name constants: `mudu_runtime/src/service/file_name.rs`
+- File name constants: `runtime_wasm/src/service/file_name.rs`
 - App metadata: `mudu/src/common/app_info.rs`

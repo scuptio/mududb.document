@@ -15,11 +15,11 @@ The exact URL format depends on the adapter implementation in use. Check the cur
 
 ## Connection configuration
 
-Adapters are typically configured through the `MUDU_CONNECTION` environment variable or a connection string passed to `mudu_open`. Common parameters include:
+Adapters are configured through the `MUDU_CONNECTION` environment variable, which holds the connection string. Common parameters include:
 
 - `http_addr` — HTTP management endpoint used to discover topology when connecting to `mudud`.
 - `async_session_loop` — enable or disable the background async manager thread.
-- `app` — default application name for interactive SQL shells.
+- `app` — application name, given as the path segment of the `mudud://` URL (defaults to `default`).
 
 Example connection string:
 
@@ -49,7 +49,7 @@ Use `false` for simple scripts, tests, or when debugging step-by-step.
 ## Known differences
 
 - The MuduDB kernel supports Mudu Procedures and `.mpk` packages; SQLite/PostgreSQL/MySQL adapters do not.
-- Parameterized `batch` may be implemented differently across backends; the kernel currently returns `NotImplemented` when parameters are supplied.
+- Parameterized `batch` is not supported in the current implementation: every backend returns `NotImplemented` when parameters are supplied.
 - Partition routing and topology discovery are kernel-specific features.
 
 See [Partitioning](partitioning.md) for routing details and [Mudu Procedure](../programming/mudu_procedure.md) for the procedure programming model.

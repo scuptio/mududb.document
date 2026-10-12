@@ -1,12 +1,13 @@
 # Wallet 示例
 
-`example/wallet` 展示了如何将业务过程打包为 `.mpk`，将包安装到 MuduDB 中，并通过 `mcli app-invoke` 调用过程。
+`example/mpk/wallet` 展示了如何将业务过程打包为 `.mpk`，将包安装到 MuduDB 中，并通过 `mcli app-invoke` 调用过程。
 
 ## 构建包
 
+在仓库根目录执行：
+
 ```bash
-cd example/wallet
-cargo make
+(cd example/mpk/wallet && cargo make package)
 ```
 
 生成的包：

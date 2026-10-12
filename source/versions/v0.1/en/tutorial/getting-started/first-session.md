@@ -2,7 +2,10 @@
 
 ## Start the Server
 
+`mudud` requires a configuration file and does not create one automatically; generate a default `./mudud.cfg` first if none exists:
+
 ```bash
+mudud init-cfg
 ulimit -n 65535
 mudud
 ```

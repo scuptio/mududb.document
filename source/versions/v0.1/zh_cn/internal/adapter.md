@@ -15,11 +15,11 @@
 
 ## 连接配置
 
-适配器通常通过 `MUDU_CONNECTION` 环境变量或传给 `mudu_open` 的连接字符串进行配置。常见参数包括：
+适配器通过 `MUDU_CONNECTION` 环境变量配置，该变量保存连接字符串。常见参数包括：
 
 - `http_addr` —— 连接 `mudud` 时用于发现拓扑的 HTTP 管理端点。
 - `async_session_loop` —— 是否启用后台异步管理线程。
-- `app` —— 交互式 SQL shell 的默认应用名。
+- `app` —— 应用名，由 `mudud://` URL 的路径段给出（默认为 `default`）。
 
 示例连接字符串：
 
@@ -49,7 +49,7 @@ mudud://127.0.0.1:9527/ycsb?http_addr=127.0.0.1:8300
 ## 已知差异
 
 - MuduDB 内核支持 Mudu 过程与 `.mpk` 包；SQLite/PostgreSQL/MySQL 适配器不支持。
-- 参数化 `batch` 在不同后端上的实现可能不同；内核目前在提供参数时返回 `NotImplemented`。
+- 当前实现不支持参数化 `batch`：所有后端在提供参数时都返回 `NotImplemented`。
 - 分区路由与拓扑发现是内核专属特性。
 
 路由细节请参见[分区](partitioning.md)，过程编程模型请参见 [Mudu 过程](../programming/mudu_procedure.md)。

@@ -22,7 +22,13 @@ MuduDB 应用以 `.mpk` 包的形式部署。`.mpk` 是一个 ZIP 归档，包�
 在应用目录下使用 `mpm-build`：
 
 ```bash
-mpm-build create --cfg package.cfg.json
+mpm-build create \
+  --package-cfg package.cfg.json \
+  --package-desc package.desc.json \
+  --ddl-sql ddl.sql \
+  --initdb-sql initdb.sql \
+  --wasm-files wallet.wasm \
+  --output wallet.mpk
 ```
 
 输出为一个 `.mpk` 文件，可安装到运行中的 `mudud` 服务器。

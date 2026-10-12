@@ -8,6 +8,8 @@ MuduDB 中的表是一个命名的行集合。每一行具有在创建时定义�
 
 表在当前会话的默认数据库上下文中创建。不存在 `CREATE DATABASE` 或 `USE database` 语法；会话本身决定逻辑数据库范围。
 
+除 `CREATE TABLE` 只接受裸表名外，各语句中的表名都可以写成模式限定形式 `schema.table`（例如 `shop.users`）。不带模式前缀的引用先按会话的当前模式解析，未命中时回退到默认模式 `mududb`；`schema.table` 形式的引用精确匹配、不回退。`CREATE TABLE` 总是把新表创建在会话的当前模式中。
+
 ```{toctree}
 :maxdepth: 1
 
@@ -16,6 +18,18 @@ create-table
 primary-key
 drop-table
 ```
+
+## 文件系统类型
+
+`CREATE TYPE FILESYSTEM` 注册一个命名的文件系统类型，之后可作为列类型在 `CREATE TABLE` 中使用；该列物理上存储一个 128 位对象标识（`U128`），指向文件或目录对象。
+
+```sql
+CREATE TYPE FILESYSTEM FILE photo_fs;
+CREATE TYPE FILESYSTEM DIRECTORY dir_fs;
+DROP TYPE photo_fs;
+```
+
+类型名只能包含字母、数字和下划线，且不能以数字开头。文件与目录对象的读写接口见 {doc}`../../programming/filesystem`。
 
 ## 不支持的 DDL
 

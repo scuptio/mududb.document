@@ -38,12 +38,12 @@ Clients obtain topology and resolve partition_oid -> worker_oid, then open sessi
 
 ## Discovering topology 
 
-- Use the HTTP management API `GET /management/topology` or `mcli --http-addr <addr> server-topology` to retrieve live topology.
+- Use the HTTP management API `GET /mudu/server/topology` or `mcli --http-addr <addr> server-topology` to retrieve live topology.
 - The topology JSON contains fields:
   - `worker_count`
   - `tcp_multi_port` (bool)
   - `tcp_base_listen_port` (int)
-  - per-worker `worker_index`, `worker_id`, `tcp_listen_port`, and list of `partition_ids`.
+  - per-worker `worker_index`, `worker_id`, `tcp_listen_port`, and the `partitions` list (partition ids placed on that worker).
 
 - To resolve a partition key to a worker:
   1. Call `partition-route` with the rule name and key tuple to obtain `partition_id` and `worker_id`.
@@ -72,7 +72,7 @@ mcli --http-addr 127.0.0.1:8300 server-topology
 ## Obtaining topology and connecting directly
 
 - The management HTTP API (http_addr) provides a JSON topology mapping. Example flow:
-  - GET /management/topology -> returns list of workers and partition assignments.
+  - GET /mudu/server/topology -> returns list of workers and partition assignments.
   - Extract worker network address and sharding port for target worker_oid.
   - Connect to worker address and open session with session_open_config_json containing worker_id.
 

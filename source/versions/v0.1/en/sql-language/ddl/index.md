@@ -8,6 +8,8 @@ A table in MuduDB is a named collection of rows. Each row has the same set of co
 
 Tables are created within the default database context of the current session. There is no `CREATE DATABASE` or `USE database` syntax; the session itself determines the logical database scope.
 
+Except for `CREATE TABLE`, which only accepts a bare table name, table names in any statement may be written in schema-qualified form `schema.table` (e.g. `shop.users`). An unqualified reference resolves against the session's current schema first and falls back to the default schema `mududb`; a `schema.table` reference matches exactly and never falls back. `CREATE TABLE` always creates the new table in the session's current schema.
+
 ```{toctree}
 :maxdepth: 1
 
@@ -16,6 +18,18 @@ create-table
 primary-key
 drop-table
 ```
+
+## Filesystem Types
+
+`CREATE TYPE FILESYSTEM` registers a named filesystem type that can then be used as a column type in `CREATE TABLE`; the column physically stores a 128-bit object identifier (`U128`) referring to a file or directory object.
+
+```sql
+CREATE TYPE FILESYSTEM FILE photo_fs;
+CREATE TYPE FILESYSTEM DIRECTORY dir_fs;
+DROP TYPE photo_fs;
+```
+
+Type names may contain only letters, digits, and underscores, and must not start with a digit. See {doc}`../../programming/filesystem` for the file and directory access interfaces.
 
 ## Unsupported DDL
 

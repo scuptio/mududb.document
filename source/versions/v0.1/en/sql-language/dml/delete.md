@@ -10,7 +10,7 @@ WHERE predicate [AND predicate ...];
 ## Rules
 
 - `WHERE` is **required**. A `DELETE` without a `WHERE` clause is rejected by the parser.
-- Predicates are combined with `AND` only.
+- Predicates are combined with `AND` only and must be equality predicates covering the complete primary key (one equality per primary-key column); non-key predicates and range predicates are not supported.
 
 ## Examples
 
@@ -21,9 +21,9 @@ DELETE FROM new_order
 WHERE no_w_id = 1 AND no_d_id = 2 AND no_o_id = 100;
 ```
 
-Delete with placeholders:
+Delete with a placeholder:
 
 ```sql
 DELETE FROM history
-WHERE h_c_id = ? AND h_c_d_id = ? AND h_c_w_id = ?;
+WHERE h_id = ?;
 ```

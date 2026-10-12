@@ -1,12 +1,13 @@
 # Wallet Example
 
-`example/wallet` shows how to package business procedures into an `.mpk`, install the package into MuduDB, and call procedures through `mcli app-invoke`.
+`example/mpk/wallet` shows how to package business procedures into an `.mpk`, install the package into MuduDB, and call procedures through `mcli app-invoke`.
 
 ## Build the Package
 
+Run from the repository root:
+
 ```bash
-cd example/wallet
-cargo make
+(cd example/mpk/wallet && cargo make package)
 ```
 
 Generated package:

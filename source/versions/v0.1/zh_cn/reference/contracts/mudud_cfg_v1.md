@@ -32,7 +32,7 @@
 | `pg_listen_port` | u16 | `5432` | PostgreSQL wire protocol 端口。 |
 | `component_target` | string | `p2` | Wasm 组件 ABI 目标。允许值：`p2`、`p3`。 |
 | `enable_async` | boolean | `true` | 是否启用 WASI 组件运行时。 |
-| `server_mode` | string | `"IOUring"` | `"Legacy"`、`"IOUring"` 或 `"Tokio"`。 |
+| `server_mode` | string | `"Tokio"` | `"Legacy"`、`"IOUring"` 或 `"Tokio"`。 |
 | `tcp_listen_port` | u16 | `9527` | TCP 定帧协议端口。 |
 | `tcp_multi_port` | boolean | `false` | 每个 worker 一个 TCP 监听器。 |
 | `worker_threads` | usize | `0` | Worker 线程数。`0` 表示使用可用并行度。 |
@@ -62,5 +62,5 @@
 
 ## 参考
 
-- 解析器：`mudu_runtime/src/backend/mudud_cfg.rs`
-- 示例配置：`doc/cfg/mudud.cfg`
+- 解析器：`mudu_runtime/src/backend/mudud_cfg/mod.rs`
+- 示例配置：`mudud init-cfg`

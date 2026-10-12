@@ -38,12 +38,12 @@
 
 ## 拓扑发现
 
-- 使用 HTTP 管理 API `GET /management/topology` 或 `mcli --http-addr <addr> server-topology` 获取实时拓扑。
+- 使用 HTTP 管理 API `GET /mudu/server/topology` 或 `mcli --http-addr <addr> server-topology` 获取实时拓扑。
 - 拓扑 JSON 包含以下字段：
   - `worker_count`
   - `tcp_multi_port` (bool)
   - `tcp_base_listen_port` (int)
-  - 每个工作线程的 `worker_index`、`worker_id`、`tcp_listen_port` 和 `partition_ids` 列表。
+  - 每个工作线程的 `worker_index`、`worker_id`、`tcp_listen_port` 和 `partitions` 列表（放置在该工作线程上的分区 id）。
 
 - 要将分区键解析到工作线程：
   1. 调用 `partition-route`，传入规则名称和键元组以获取 `partition_id` 和 `worker_id`。
@@ -72,7 +72,7 @@ mcli --http-addr 127.0.0.1:8300 server-topology
 ## 获取拓扑并直接连接
 
 - 管理 HTTP API（http_addr）提供 JSON 拓扑映射。示例流程：
-  - GET /management/topology -> 返回工作线程和分区分配列表。
+  - GET /mudu/server/topology -> 返回工作线程和分区分配列表。
   - 提取目标 worker_oid 的工作线程网络地址和分片端口。
   - 连接到工作线程地址并打开包含 worker_id 的 session_open_config_json 的会话。
 

@@ -45,6 +45,19 @@ mcli --addr 127.0.0.1:9527 --http-addr 127.0.0.1:8300 app-invoke \
   --json '{"from_user_id": 1001, "to_user_id": 1002, "amount": 1200}'
 ```
 
+## Standalone adapter connection
+
+Programs that run procedures through the standalone adapter (`mudu_adapter`) — rather than through `mcli` — read the `MUDU_CONNECTION` environment variable to pick a backend. When the variable is unset, the adapter defaults to `sqlite:///tmp/mududb.db`.
+
+| Scheme | Backend | Example |
+|--------|---------|---------|
+| `sqlite://<path>` | SQLite file | `sqlite:///tmp/mududb.db` |
+| `postgres://…`, `postgresql://…` | PostgreSQL | `postgres://postgres:postgres@127.0.0.1:5432/tpcc` |
+| `mysql://…` | MySQL | `mysql://root:root@127.0.0.1:3306/tpcc` |
+| `mudud://<addr>[/<app>][?query]` | MuduDB server | `mudud://127.0.0.1:9527/ycsb?http_addr=127.0.0.1:8300` |
+
+A `sqlite:` prefix or a bare path is also treated as a SQLite file path. For the `mudud://` form, the app name defaults to `default` and the `http_addr` query parameter defaults to `127.0.0.1:8300`; see [Adapter configuration](../internal/adapter.md) for the query parameters.
+
 ## Output
 
 - Query results are displayed as a table by default in TTY sessions.

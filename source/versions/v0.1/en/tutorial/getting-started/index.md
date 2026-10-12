@@ -13,7 +13,7 @@ first-session
 
 ````{grid} 1 1 2 2
 ```{grid-item-card} Release Installation
-Use `mudup install` for server deployment, daily use, and quick validation.
+Use `mudup install` (planned; not yet available) for server deployment, daily use, and quick validation.
 ```
 
 ```{grid-item-card} Source Build

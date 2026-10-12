@@ -22,7 +22,13 @@ See the [MPK Manifest Contract](../reference/contracts/mpk_manifest_v1.md) for t
 Use `mpm-build` from the application directory:
 
 ```bash
-mpm-build create --cfg package.cfg.json
+mpm-build create \
+  --package-cfg package.cfg.json \
+  --package-desc package.desc.json \
+  --ddl-sql ddl.sql \
+  --initdb-sql initdb.sql \
+  --wasm-files wallet.wasm \
+  --output wallet.mpk
 ```
 
 The output is a `.mpk` file that can be installed into a running `mudud` server.

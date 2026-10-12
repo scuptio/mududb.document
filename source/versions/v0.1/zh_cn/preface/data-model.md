@@ -36,12 +36,14 @@ Mudu 过程是操作 MuduDB 数据的普通函数。其输入与返回类型必�
 `mgen` 工具读取 `ddl.sql` 并生成实现 `Entity` trait 的 Rust 结构体，从而提供类型化的查询结果与参数：
 
 ```rust
-#[derive(Entity)]
+#[derive(Debug, Clone, Default)]
 struct Account {
     id: i64,
     owner: String,
     balance: i64,
 }
+
+impl Entity for Account { /* 由 mgen 生成 */ }
 ```
 
 `mudu_query::<Account>(oid, sql, params)` 会自动将结果行映射为 `Account` 实例。
